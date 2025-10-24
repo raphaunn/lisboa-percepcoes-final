@@ -1,0 +1,36 @@
+# ===== Raiz / Gerais =====
+.DS_Store
+Thumbs.db
+
+# ===== Python / FastAPI (api/) =====
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+*.sqlite3
+.venv/
+venv/
+env/
+*.egg-info/
+api/.env
+api/.env.*
+api/.pytest_cache/
+api/.mypy_cache/
+
+# ===== Node/Vite/React (web/) =====
+web/node_modules/
+web/dist/
+web/.vite/
+web/.eslintcache
+web/.env
+web/.env.*
+
+# ===== IDE / Editor =====
+.vscode/
+.idea/
+*.iml
+
+# ===== Supabase / chaves locais =====
+supabase/.temp/
+supabase/.branches/

@@ -1,0 +1,125 @@
+/* Evita rolagem horizontal */
+html, body {
+  overflow-x: hidden;
+}
+
+/* Container central */
+:root {
+  --container-max: 1100px;
+}
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* ====== Grelhas ====== */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 1024px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ====== Inputs e selects (sem afetar checkboxes/radios) ====== */
+/* Inputs de texto/número etc + selects ocupam 100% da largura do label */
+label > input:not([type="checkbox"]):not([type="radio"]),
+label > select,
+label > textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Checkboxes alinhados ao texto */
+label > input[type="checkbox"],
+label > input[type="radio"] {
+  width: auto;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+/* Fieldset pode encolher sem estourar lateralmente */
+fieldset {
+  min-width: 0;
+}
+
+/* ====== Tratamento específico para <select> em telas pequenas ====== */
+/* 1) Garante que o componente base nunca exceda a viewport */
+@media (max-width: 480px) {
+  label > select {
+    max-width: 100vw;           /* não passa da largura do ecrã */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* 2) Evita que opções longas “empurrem” a largura visual */
+label > select option {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;               /* ajuda alguns engines a respeitar ellipsis */
+}
+
+/* 3) Safari/iOS e alguns Chromium: forçar cálculo de largura pelo elemento */
+@supports (-webkit-touch-callout: none) {
+  label > select {
+    width: 100% !important;
+  }
+}
+
+/* ====== Mapa ====== */
+.mapBox {
+  height: 520px;
+}
+@media (max-width: 768px) {
+  .mapBox {
+    height: 420px;
+  }
+}
+
+/* Lista de resultados sob o mapa */
+.result-list {
+  max-height: 160px;
+  overflow: auto;
+  border: 1px solid #eee;
+  padding: 6px;
+}
+@media (max-width: 768px) {
+  .result-list {
+    max-height: 200px;
+  }
+}
+
+/* Linha de botões “Guardar / Ignorar” */
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Leaflet: impedir “vazamento” de largura */
+.leaflet-container {
+  width: 100%;
+  max-width: 100%;
+}

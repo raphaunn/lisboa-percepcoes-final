@@ -2,13 +2,13 @@
 
 Versão: **lisboa-percepcoes-final_05.11.25**
 
-Stack:
+**Stack**:
 - **Frontend**: Vite + React + Leaflet (+ Leaflet.Draw)
 - **Backend**: FastAPI (Python)
 - **Base de Dados**: Supabase (PostgreSQL + PostGIS)
 - **APIs Externas:** Nominatim e Overpass (OpenStreetMap)
 
-## Estrutura de Pastas
+## Estrutura de Pastas:
 ```bash
 lisboa-percepcoes/
 ├── api/ # Backend FastAPI
@@ -46,8 +46,8 @@ lisboa-percepcoes/
   README.md # Este documento
 ```
 
-## Como rodar localmente
-### Backend (FastAPI)
+## Como rodar localmente:
+### Backend (FastAPI):
 ```bash
 cd api
 pip install -r requirements.txt
@@ -60,8 +60,8 @@ npm install
 npm run dev
 ```
 
-## Funcionamente interno
-**api/main.py**
+## Funcionamente interno:
+**api/main.py**:
 - Contém todas as rotas FastAPI:
   - /health → status da API.
   - /consent → cria participant_id.
@@ -73,52 +73,48 @@ npm run dev
 - Integra-se ao Supabase/PostgreSQL via DATABASE_URL definida em .env.
 - Expõe dados geográficos em formato GeoJSON, para consumo direto pelo Leaflet.
  
-**web/src/App.jsx**
+**web/src/App.jsx**:
 - Núcleo do frontend:
   - Carrega o mapa Leaflet e os layers dinâmicos.
   - Permite desenhar polígonos (Leaflet.Draw).
   - Controla envio e recuperação das seleções.
   - Comunica com o backend via chamadas à API (fetch('/api/...')).
    
-**web/src/main.jsx**
+**web/src/main.jsx**:
 - Ponto de inicialização React.
 - Renderiza <App /> e aplica estilos globais (index.css, global.css).
-- 
-**web/vite.config.js**
+ 
+**web/vite.config.js**:
 - Estrutura SQL da BD Supabase (PostgreSQL + PostGIS).
 - Inclui tabelas: participants, profiles, themes, selections, user_polygons, osm_cache.
 - Serve como blueprint para reconfigurar o banco.
 
-## Integrações externas
+## Integrações externas:
 - **Nominatim**: Serviço de geocodificação do OpenStreetMap — converte texto em coordenadas/polígonos.
 - **Overpass API**:Permite consultas diretas a entidades OSM.
 
-## Fluxo simplificado
-**1**. Utilizador preenche o perfil → gravado em profiles.
+## Fluxo simplificado:
+- Utilizador preenche o perfil → gravado em profiles.
+- Utilizador seleciona ou desenha locais → enviados para /submit.
+- FastAPI grava:
+  - Seleções OSM em selections.
+  - Desenhos manuais em user_polygons.
+- Dados podem ser analisados via QGIS (ligação direta ao Supabase).
 
-**2**. Utilizador seleciona ou desenha locais → enviados para /submit.
+## Dependências principais:
+- **Backend (api/requirements.txt)**:
+  - fastapi
+  - uvicorn
+  - psycopg2
+  - requests
+  - pydantic
+  - python-dotenv
+- **Frontend (web/package.json)**:
+  - react, react-dom
+  - vite
+  - leaflet
+  - leaflet-draw
 
-**3**. FastAPI grava:
-
-- **3.1**. Seleções OSM em selections.
-- **3.2**. Desenhos manuais em user_polygons.
-  
-**4**. Dados podem ser analisados via QGIS (ligação direta ao Supabase).
-
-## Dependências principais
-**Backend (api/requirements.txt)**:
-- fastapi
-- uvicorn
-- psycopg2
-- requests
-- pydantic
-- python-dotenv
-**Frontend (web/package.json)**:
-- react, react-dom
-- vite
-- leaflet
-- leaflet-draw
-
-## Créditos
+## Créditos:
 Projeto desenvolvido no âmbito da tese de mestrado “As Lisboas de Lisboa: SIG Participativo na Identificação de Diferentes Tendências de Percepção da Paisagem Urbana”, pela NOVA IMS, Mestrado em Ciências e Sistemas de Informações Geográficas, 2026.
 Nota importante: o desenvolvimento do WebSIG foi consolidado com o apoio de ferramentas de Inteligência Artificial.

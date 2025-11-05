@@ -72,15 +72,18 @@ npm run dev
   - /submit → grava seleções e polígonos manuais no BD.
 - Integra-se ao Supabase/PostgreSQL via DATABASE_URL definida em .env.
 - Expõe dados geográficos em formato GeoJSON, para consumo direto pelo Leaflet.
+- 
 **web/src/App.jsx**
 - Núcleo do frontend:
   - Carrega o mapa Leaflet e os layers dinâmicos.
   - Permite desenhar polígonos (Leaflet.Draw).
   - Controla envio e recuperação das seleções.
   - Comunica com o backend via chamadas à API (fetch('/api/...')).
+  - 
 **web/src/main.jsx**
 - Ponto de inicialização React.
 - Renderiza <App /> e aplica estilos globais (index.css, global.css).
+- 
 **web/vite.config.js**
 - Estrutura SQL da BD Supabase (PostgreSQL + PostGIS).
 - Inclui tabelas: participants, profiles, themes, selections, user_polygons, osm_cache.

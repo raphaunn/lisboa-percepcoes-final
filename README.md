@@ -72,14 +72,14 @@ npm run dev
   - /submit → grava seleções e polígonos manuais no BD.
 - Integra-se ao Supabase/PostgreSQL via DATABASE_URL definida em .env.
 - Expõe dados geográficos em formato GeoJSON, para consumo direto pelo Leaflet.
-- 
+ 
 **web/src/App.jsx**
 - Núcleo do frontend:
   - Carrega o mapa Leaflet e os layers dinâmicos.
   - Permite desenhar polígonos (Leaflet.Draw).
   - Controla envio e recuperação das seleções.
   - Comunica com o backend via chamadas à API (fetch('/api/...')).
-  - 
+   
 **web/src/main.jsx**
 - Ponto de inicialização React.
 - Renderiza <App /> e aplica estilos globais (index.css, global.css).
@@ -95,10 +95,15 @@ npm run dev
 
 ## Fluxo simplificado
 **1**. Utilizador preenche o perfil → gravado em profiles.
+
 **2**. Utilizador seleciona ou desenha locais → enviados para /submit.
+
 **3**. FastAPI grava:
+
   **3.1**. Seleções OSM em selections.
+  
   **3.2**. Desenhos manuais em user_polygons.
+  
 **4**. Dados podem ser analisados via QGIS (ligação direta ao Supabase).
 
 ## Dependências principais

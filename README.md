@@ -32,7 +32,8 @@ lisboa-percepcoes/
 │ └── App.css # Estilo específico do mapa
 │
 ├── backups/
-│ └── schema_public_v1_24.10.25.sql # Estrutura da BD Supabase (referência)
+│ └── schema_public_v1_24.10.25.sql # Estrutura da BD Supabase (primeira versão; *inutilizada*)
+│ └── schema_public_v2_25.11.25.sql # Estrutura da BD Supabase (estrutura de referência; backup compatível com a versão final)
 │
 ├── .gitignore # Ignora cache, node_modules, .env, etc.
 ├── .gitattributes # Normaliza fim de linha (LF/CRLF)

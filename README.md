@@ -64,27 +64,27 @@ npm run dev
 **api/main.py**
 - Contém todas as rotas FastAPI:
   - /health → status da API.
-    /consent → cria participant_id.
-    /profile → grava dados sociodemográficos.
-    /geocode → busca locais (Nominatim + Overpass).
-    /categories → lista categorias OSM.
-    /category/{code} → retorna camadas filtradas (ex: parques, escolas).
-    /submit → grava seleções e polígonos manuais no BD.
-  Integra-se ao Supabase/PostgreSQL via DATABASE_URL definida em .env.
-  Expõe dados geográficos em formato GeoJSON, para consumo direto pelo Leaflet.
+  - /consent → cria participant_id.
+  - /profile → grava dados sociodemográficos.
+  - /geocode → busca locais (Nominatim + Overpass).
+  - /categories → lista categorias OSM.
+  - /category/{code} → retorna camadas filtradas (ex: parques, escolas).
+  - /submit → grava seleções e polígonos manuais no BD.
+- Integra-se ao Supabase/PostgreSQL via DATABASE_URL definida em .env.
+- Expõe dados geográficos em formato GeoJSON, para consumo direto pelo Leaflet.
 **web/src/App.jsx**
-  Núcleo do frontend:
-    Carrega o mapa Leaflet e os layers dinâmicos.
-    Permite desenhar polígonos (Leaflet.Draw).
-    Controla envio e recuperação das seleções.
-    Comunica com o backend via chamadas à API (fetch('/api/...')).
+- Núcleo do frontend:
+  - Carrega o mapa Leaflet e os layers dinâmicos.
+  - Permite desenhar polígonos (Leaflet.Draw).
+  - Controla envio e recuperação das seleções.
+  - Comunica com o backend via chamadas à API (fetch('/api/...')).
 **web/src/main.jsx**
-  Ponto de inicialização React.
-  Renderiza <App /> e aplica estilos globais (index.css, global.css).
+- Ponto de inicialização React.
+- Renderiza <App /> e aplica estilos globais (index.css, global.css).
 **web/vite.config.js**
-  Estrutura SQL da BD Supabase (PostgreSQL + PostGIS).
-  Inclui tabelas: participants, profiles, themes, selections, user_polygons, osm_cache.
-  Serve como blueprint para reconfigurar o banco.
+- Estrutura SQL da BD Supabase (PostgreSQL + PostGIS).
+- Inclui tabelas: participants, profiles, themes, selections, user_polygons, osm_cache.
+- Serve como blueprint para reconfigurar o banco.
 
 ## Integrações externas
 **Nominatim**: Serviço de geocodificação do OpenStreetMap — converte texto em coordenadas/polígonos.

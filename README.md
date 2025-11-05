@@ -9,6 +9,7 @@ Stack:
 - **APIs Externas:** Nominatim e Overpass (OpenStreetMap)
 
 ## Estrutura de Pastas
+```bash
 lisboa-percepcoes/
 ├── api/ # Backend FastAPI
 │ ├── main.py # API principal (rotas, BD, geocodificação)
@@ -36,6 +37,7 @@ lisboa-percepcoes/
 ├── .gitignore # Ignora cache, node_modules, .env, etc.
 ├── .gitattributes # Normaliza fim de linha (LF/CRLF)
 └── README.md # Este documento
+```
 
   backups/
     schema_public_v1_24.10.25.sql # Estrutura da BD Supabase (referência)

@@ -90,8 +90,8 @@ npm run dev
 - Serve como blueprint para reconfigurar o banco.
 
 ## Integrações externas
-**Nominatim**: Serviço de geocodificação do OpenStreetMap — converte texto em coordenadas/polígonos.
-**Overpass API**:Permite consultas diretas a entidades OSM.
+- **Nominatim**: Serviço de geocodificação do OpenStreetMap — converte texto em coordenadas/polígonos.
+- **Overpass API**:Permite consultas diretas a entidades OSM.
 
 ## Fluxo simplificado
 **1**. Utilizador preenche o perfil → gravado em profiles.
@@ -100,25 +100,24 @@ npm run dev
 
 **3**. FastAPI grava:
 
-  **3.1**. Seleções OSM em selections.
-  
-  **3.2**. Desenhos manuais em user_polygons.
+- **3.1**. Seleções OSM em selections.
+- **3.2**. Desenhos manuais em user_polygons.
   
 **4**. Dados podem ser analisados via QGIS (ligação direta ao Supabase).
 
 ## Dependências principais
 **Backend (api/requirements.txt)**:
-  fastapi
-  uvicorn
-  psycopg2
-  requests
-  pydantic
-  python-dotenv
+- fastapi
+- uvicorn
+- psycopg2
+- requests
+- pydantic
+- python-dotenv
 **Frontend (web/package.json)**:
-  react, react-dom
-  vite
-  leaflet
-  leaflet-draw
+- react, react-dom
+- vite
+- leaflet
+- leaflet-draw
 
 ## Créditos
 Projeto desenvolvido no âmbito da tese de mestrado “As Lisboas de Lisboa: SIG Participativo na Identificação de Diferentes Tendências de Percepção da Paisagem Urbana”, pela NOVA IMS, Mestrado em Ciências e Sistemas de Informações Geográficas, 2026.

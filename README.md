@@ -1,6 +1,6 @@
 # As Lisboas de Lisboa – WebSIG
 
-Versão: **lisboa-percepcoes_v1_24.10.25**
+Versão: **lisboa-percepcoes-final_05.11.25**
 
 Stack:
 - **Frontend**: Vite + React + Leaflet (+ Leaflet.Draw)

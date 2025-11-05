@@ -8,27 +8,34 @@ Stack:
 - **Base de Dados**: Supabase (PostgreSQL + PostGIS)
 - **APIs Externas:** Nominatim e Overpass (OpenStreetMap)
 
-## 🚀 Estrutura de Pastas
+## Estrutura de Pastas
 lisboa-percepcoes/
-  api/ # Backend FastAPI
-    main.py # API principal (rotas, BD, geocodificação)
-    mini_api.py # Versão leve/alternativa (debug/local)
-    requirements.txt # Dependências Python
-
-  web/ # Frontend React + Vite
-    index.html # HTML base da aplicação
-    vite.config.js # Configuração do ambiente Vite (dev/prod)
-    package.json # Dependências JS + scripts npm
-    public/ # Imagens e ícones públicos
-      logo_novaims.png
-      vite.svg
-    src/ # Código-fonte React
-    App.jsx # Componente principal (estrutura do WebSIG)
-    main.jsx # Ponto de entrada do React
-    global.css # Estilo global
-    responsive.css # Estilos responsivos
-    index.css # Layout base
-    App.css # Estilo específico do mapa
+├── api/ # Backend FastAPI
+│ ├── main.py # API principal (rotas, BD, geocodificação)
+│ ├── mini_api.py # Versão leve/alternativa (debug/local)
+│ └── requirements.txt # Dependências Python
+│
+├── web/ # Frontend React + Vite
+│ ├── index.html # HTML base da aplicação
+│ ├── vite.config.js # Configuração do ambiente Vite (dev/prod)
+│ ├── package.json # Dependências JS + scripts npm
+│ ├── public/ # Imagens e ícones públicos
+│ │ ├── logo_novaims.png
+│ │ └── vite.svg
+│ └── src/ # Código-fonte React
+│ ├── App.jsx # Componente principal (estrutura do WebSIG)
+│ ├── main.jsx # Ponto de entrada do React
+│ ├── global.css # Estilo global
+│ ├── responsive.css # Estilos responsivos
+│ ├── index.css # Layout base
+│ └── App.css # Estilo específico do mapa
+│
+├── backups/
+│ └── schema_public_v1_24.10.25.sql # Estrutura da BD Supabase (referência)
+│
+├── .gitignore # Ignora cache, node_modules, .env, etc.
+├── .gitattributes # Normaliza fim de linha (LF/CRLF)
+└── README.md # Este documento
 
   backups/
     schema_public_v1_24.10.25.sql # Estrutura da BD Supabase (referência)

@@ -62,8 +62,8 @@ npm run dev
 
 ## Funcionamente interno
 **api/main.py**
-  Contém todas as rotas FastAPI:
-    /health → status da API.
+- Contém todas as rotas FastAPI:
+  - /health → status da API.
     /consent → cria participant_id.
     /profile → grava dados sociodemográficos.
     /geocode → busca locais (Nominatim + Overpass).

@@ -1,36 +1,21 @@
-# ===== Raiz / Gerais =====
+# Node / Vite
+node_modules/
+dist/
+.vite/
 .DS_Store
-Thumbs.db
 
-# ===== Python / FastAPI (api/) =====
+# Python / FastAPI
 __pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.log
-*.sqlite3
+*.pyc
 .venv/
 venv/
-env/
-*.egg-info/
-api/.env
-api/.env.*
-api/.pytest_cache/
-api/.mypy_cache/
 
-# ===== Node/Vite/React (web/) =====
-web/node_modules/
-web/dist/
-web/.vite/
-web/.eslintcache
-web/.env
-web/.env.*
-
-# ===== IDE / Editor =====
-.vscode/
+# IDEs/Editor
 .idea/
-*.iml
+.vscode/
 
-# ===== Supabase / chaves locais =====
-supabase/.temp/
-supabase/.branches/
+# Ambiente / Segredos
+.env
+
+# Outros
+*.log

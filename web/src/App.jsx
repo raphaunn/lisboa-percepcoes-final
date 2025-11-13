@@ -251,7 +251,7 @@ function Consent({ onOk, setPid, testMode }) {
       console.error(err);
       alert(
         "Não foi possível contactar a API (/api).\n" +
-        "Verifique se o terminal da API está a correr (Uvicorn) e tente novamente."
+        "Verifique se o servidor em https://api-lisbonperceptions.rederua.pt está online e tente novamente."
       );
     }
   };
@@ -376,7 +376,10 @@ function Profile({ participantId, onOk, testMode }) {
       onOk();
     } catch (err) {
       console.error(err);
-      alert("Falha ao contactar a API /profile. Verifique a API e tente novamente.");
+      alert(
+      "Falha ao contactar a API em /profile.\n" +
+      "Verifique se https://api-lisbonperceptions.rederua.pt está online e com acesso permitido a partir deste site."  
+      );
     }
   };
 

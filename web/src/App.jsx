@@ -9,7 +9,7 @@ import {
 import { EditControl } from "react-leaflet-draw";
 
 // ====== CONFIG ======
-const API = "https://api-lisbonperceptions.rederua.pt";
+const API = "https://api-lisbonperceptions.rederua.pt/api";
 const TEST_PASSWORD = "lisboa123";
 
 // BBOX aproximado da cidade de Lisboa (minLon, minLat, maxLon, maxLat)

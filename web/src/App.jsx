@@ -9,7 +9,7 @@ import {
 import { EditControl } from "react-leaflet-draw";
 
 // ====== CONFIG ======
-const API = "/api"; // via proxy do Vite (evita CORS/Network Error)
+const API = "https://api-lisbonperceptions.rederua.pt";
 const TEST_PASSWORD = "lisboa123";
 
 // BBOX aproximado da cidade de Lisboa (minLon, minLat, maxLon, maxLat)

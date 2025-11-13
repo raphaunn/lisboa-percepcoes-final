@@ -49,6 +49,20 @@ CACHE_TTL_S = int(os.getenv("OVERPASS_CACHE_TTL", "300"))
 LISBON_BBOX = (-9.25, 38.69, -9.05, 38.80)
 VIEWBOX = f"{LISBON_BBOX[0]},{LISBON_BBOX[3]},{LISBON_BBOX[2]},{LISBON_BBOX[1]}"
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://lisbonperceptions.rederua.pt",
+        "https://lisbonperceptions.netlify.app",
+        "http://localhost:5173",  # para debug local
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app = FastAPI(title="Lisboa Percepções – API (dev)")
 
 # CORS

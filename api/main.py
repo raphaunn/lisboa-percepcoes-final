@@ -51,15 +51,19 @@ VIEWBOX = f"{LISBON_BBOX[0]},{LISBON_BBOX[3]},{LISBON_BBOX[2]},{LISBON_BBOX[1]}"
 
 app = FastAPI(title="Lisboa Percepções – API (dev)")
 
-ALLOWED_ORIGINS = {
+# CORS
+FRONTEND_URL = os.getenv("ALLOWED_ORIGIN", "")
+LOCAL_ORIGINS = [
     "http://localhost:5173", "http://127.0.0.1:5173",
     "http://localhost:5174", "http://127.0.0.1:5174",
     "http://localhost:5175", "http://127.0.0.1:5175",
-    ALLOWED_ORIGIN,
-}
+]
+
+ALLOWED_ORIGINS = LOCAL_ORIGINS + [FRONTEND_URL]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=list(ALLOWED_ORIGINS),
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

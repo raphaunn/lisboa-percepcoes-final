@@ -259,7 +259,7 @@ function Consent({ onOk, setPid, testMode }) {
   return (
     <div>
       <h2 style={{ fontSize: "1.4rem", marginBottom: "0.5rem" }}>
-        <strong>Olá!</strong>
+        <strong>Olá TESTE!</strong>
       </h2>
       <p>Estamos a tentar perceber as várias Lisboas dentro de Lisboa e <strong>a sua participação é essencial!</strong></p>
       <p>Pretendemos identificar tendências na forma como diferentes pessoas veem a mesma paisagem urbana.</p>

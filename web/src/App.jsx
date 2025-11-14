@@ -263,9 +263,10 @@ function Consent({ onOk, setPid, testMode }) {
       </h2>
       <p>Estamos a tentar perceber as várias Lisboas dentro de Lisboa e <strong>a sua participação é essencial!</strong></p>
       <p>Pretendemos identificar tendências na forma como diferentes pessoas veem a mesma paisagem urbana.</p>
-      <p>Este formulário é anónimo e funciona melhor num computador.</p>
+      <p>Esse projeto é realizado em contexto acadêmico, em âmbito do Mestrado de Ciências e Sistemas de Informação Geográfica, pela NOVA IMS.</p>
+      <p>O desenvolvimento da plataforma é autoral e o domínio foi contributo da <strong>Rede RUA</strong> (rederua.pt), uma startup de impacto social, com valores alinhados ao projeto, que se prestou a colaborar.</p>
+      <p>Este formulário é anónimo e os dados serão usados exclusivamente para fins científicos.</p>
       <p>O tempo estimado é de aproximadamente 5 minutos.</p>
-      <p>Os dados serão usados exclusivamente para fins científicos (faz parte do projeto de tese para o Mestrado em Ciência e Sistemas de Informação Geográfica, pela NOVA IMS).</p>
 
       <div style={{ marginTop: "1rem", display: "grid", gap: "0.5rem" }}>
         <label><input type="checkbox" checked={agreeTerms} onChange={(e)=>setAgreeTerms(e.target.checked)}/> Li e concordo com os termos de uso.</label>
@@ -388,7 +389,7 @@ function Profile({ participantId, onOk, testMode }) {
       <h2>Perfil</h2>
 
       <fieldset style={{border:"1px solid #ddd", padding:"10px", marginBottom:"10px"}}>
-        <legend>Demografia</legend>
+        <legend><strong>Demografia</strong></legend>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:"8px"}}>
           <label>Faixa etária:
             <select value={form.age_band} onChange={e=>setForm({...form, age_band:e.target.value})}>
@@ -437,7 +438,7 @@ function Profile({ participantId, onOk, testMode }) {
                 title="O que significa 'rendimento médio mensal'?"
                 style={{
                   border:"1px solid #dadadaff", background:"#f6f6f6ff", color:"#374151",
-                  borderRadius:999, width:20, height:20, fontSize:"0.8rem",
+                  borderRadius:999, width:20, height:20, fontSize:"1rem",
                   lineHeight:"18px", textAlign:"center", cursor:"pointer", padding:0
                 }}
               >ⓘ</button>
@@ -459,7 +460,7 @@ function Profile({ participantId, onOk, testMode }) {
       </fieldset>
 
       <fieldset style={{border:"1px solid #ddd", padding:"10px", marginBottom:"10px"}}>
-        <legend>Habitação</legend>
+        <legend><strong>Habitação</strong></legend>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:"8px"}}>
           <label>Situação habitacional atual:
             <select value={form.tenure} onChange={e=>setForm({...form, tenure:e.target.value})}>
@@ -480,7 +481,7 @@ function Profile({ participantId, onOk, testMode }) {
       </fieldset>
 
       <fieldset style={{border:"1px solid #ddd", padding:"10px", marginBottom:"10px"}}>
-        <legend>Relação com Lisboa</legend>
+        <legend><strong>Relação com Lisboa</strong></legend>
         <div style={{marginBottom:"6px"}}><strong>Selecione as opções que se aplicam:</strong></div>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:"6px"}}>
           <label><input type="checkbox" checked={form.lives_in_lisbon} onChange={e=>toggleLivesNow(e.target.checked)}/> Vivo atualmente em Lisboa</label>
@@ -500,7 +501,6 @@ function Profile({ participantId, onOk, testMode }) {
               <option>não aplicável</option>
               <option>{"<1 ano"}</option><option>{"1-2 anos"}</option><option>{"2-3 anos"}</option>
               <option>{"3-5 anos"}</option>
-              {/* Atualização solicitada: substitui “>5” por 5–7, 7–10, >10 */}
               <option>{"5-7 anos"}</option><option>{"7-10 anos"}</option><option>{">10 anos"}</option>
             </select>
           </label>
@@ -508,7 +508,7 @@ function Profile({ participantId, onOk, testMode }) {
       </fieldset>
 
       <fieldset style={{border:"1px solid #ddd", padding:"10px", marginBottom:"10px"}}>
-        <legend>Mobilidade</legend>
+        <legend><strong>Mobilidade</strong></legend>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:"8px"}}>
           <label>Uso de transporte público:
             <select value={form.pt_use} onChange={e=>setForm({...form, pt_use:e.target.value})}>
@@ -530,16 +530,15 @@ function Profile({ participantId, onOk, testMode }) {
         </div>
       </fieldset>
 
-      {/* Perceções — ligeira separação visual */}
       <fieldset style={{
         border:"1px solid #e5e7eb",
-        background:"#eaeaeaa2",
+        background:"#ffffffa2",
         padding:"10px",
         marginTop:"18px",
         marginBottom:"10px",
         borderRadius:"6px"
       }}>
-        <legend>Perceções</legend>
+        <legend><strong>Perceções</strong></legend>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:"8px"}}>
           <label>Qual o seu nível de conexão com Lisboa (senso de pertença)? (1–5)
             <input type="number" min="1" max="5" value={form.belonging_1_5 ?? ""} onChange={e=>setForm({...form, belonging_1_5: e.target.value===""? null : +e.target.value})}/>
@@ -631,10 +630,31 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
   const [catFeatures, setCatFeatures] = useState({}); // code -> array de feats
   const [showCats, setShowCats] = useState(false);     // botão expansível
 
-  // Loading por categoria
+  // Loading por categoria + ativar por defeito
   const [loadingCats, setLoadingCats] = useState(new Set());
   const loadingCatsRef = useRef(loadingCats);
   useEffect(()=>{ loadingCatsRef.current = loadingCats; }, [loadingCats]);
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth" // ou "auto"
+    });
+  }, []);
+
+  useEffect(() => {
+    if (categories.length > 0 && selectedCats.size === 0) {
+      const all = new Set(categories.map(c => c.code));
+      setSelectedCats(all);
+  
+      // carregar todas as categorias logo ao início
+      categories.forEach(cat => {
+        fetchCategory(cat.code, CITY_BBOX_PARAM);
+        catFirstGlobalRef.current[cat.code] = true;
+      });
+    }
+  }, [categories]);
 
   // Controle de versão de requisições por categoria
   const catReqVersionRef = useRef({}); // { [code]: number }
@@ -1103,7 +1123,7 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
   // ===== Micro-explicação por tema =====
   const microExplain = (() => {
     if (themeCode === "identity") {
-      return "Ex.: um miradouro, um bairro ou um jardim que, para si, resume ‘o que é Lisboa’. Podem ser lugares simbólicos do seu quotidiano.";
+      return 'Ex.: um miradouro, um bairro ou um jardim que, para si, resume "o que é Lisboa". Podem ser lugares simbólicos do seu quotidiano.';
     }
     if (themeCode === "cultural_change") {
       return "Ex.: uma rua onde o comércio local fechou, uma zona tradicional que perdeu moradores, ou um largo que mudou de uso.";
@@ -1138,7 +1158,7 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
             margin:"0 0 10px 0",
             fontSize:".95rem",
             color:"#374151",
-            background:"#ffffffa8",
+            background:"#ffffff19",
             border:"1px solid #e5e7eb",
             borderRadius:8,
             padding:"8px 10px"
@@ -1436,7 +1456,7 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
                 circlemarker: false,
                 marker: false,
                 // Mantemos apenas polígono, com opções simples e consistentes
-                polygon: { allowIntersection: false, showArea: true }
+                polygon: { allowIntersection: true, showArea: true, drawError: false }
               }}
               // Mantemos a edição/remover padrão do plugin
             />
@@ -1489,7 +1509,7 @@ function ThemeWizard({ participantId, onDone, testMode }) {
     },
     {
       code: "cost_sense",
-      title: "Sensação de custo",
+      title: "Sensação de encarecimento",
       prompt: "Quais são as áreas que, para si, transmitem uma sensação de encarecimento/custo de vida elevado (ex.: preços de comércio, serviços, habitação)?"
     }
   ];
@@ -1555,7 +1575,7 @@ export default function App(){
 
       {step===3 && (
         <div>
-          <h2>Obrigado!</h2>
+          <h2>Obrigado pelo tempo investido!</h2>
           <p>As suas respostas foram guardadas.</p>
           {testMode && <p style={{color:"#7c2d12"}}>Nota: Modo Teste estava ativo — nada foi gravado.</p>}
         </div>

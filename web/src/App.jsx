@@ -39,35 +39,51 @@ function classTypeToCategory(osmClass, osmType) {
   const cls = (osmClass || "").toLowerCase();
   const typ = (osmType || "").toLowerCase();
 
-  // parks
-  if (cls === "leisure" && (typ === "park" || typ === "garden")) return "parks";
+  // ---- PARKS ----
+  if (cls === "leisure" && /(park|garden|nature_reserve|golf_course)/.test(typ))
+    return "parks";
+  if (cls === "landuse" && /(grass|forest)/.test(typ))
+    return "parks";
 
-  // public_buildings
-  if (cls === "building" && /^(public|civic|townhall|library|courthouse)$/.test(typ)) return "public_buildings";
-  if (cls === "amenity"  && /^(townhall|library|courthouse|police|fire_station)$/.test(typ)) return "public_buildings";
+  // ---- PUBLIC BUILDINGS ----
+  if (cls === "building" && /(public|civic|townhall|library|courthouse|government)/.test(typ))
+    return "public_buildings";
+  if (cls === "amenity" && /(police|fire_station|bureau|public_building)/.test(typ))
+    return "public_buildings";
 
-  // schools
-  if (cls === "building" && /^(school|university|college)$/.test(typ)) return "schools";
-  if (cls === "amenity"  && /^(school|university|college)$/.test(typ)) return "schools";
+  // ---- SCHOOLS ----
+  if (cls === "building" && /(school|university|college|kindergarten)/.test(typ))
+    return "schools";
+  if (cls === "amenity" && /(school|university|college|kindergarten)/.test(typ))
+    return "schools";
 
-  // hospitals
-  if (cls === "building" && /^(hospital|clinic)$/.test(typ)) return "hospitals";
-  if (cls === "amenity"  && /^(hospital|clinic)$/.test(typ)) return "hospitals";
+  // ---- HOSPITALS ----
+  if (cls === "building" && /(hospital|clinic|doctors)/.test(typ))
+    return "hospitals";
+  if (cls === "amenity" && /(hospital|clinic|doctors|dentist)/.test(typ))
+    return "hospitals";
 
-  // museums
-  if (cls === "tourism" && typ === "museum") return "museums";
+  // ---- MUSEUMS ----
+  if (cls === "tourism" && /(museum|gallery)/.test(typ))
+    return "museums";
 
-  // heritage
+  // ---- HERITAGE ----
   if (cls === "historic" || cls === "heritage") return "heritage";
+  if (cls === "tourism" && /(attraction|artwork|monument)/.test(typ))
+    return "heritage";
 
-  // sports
-  if (cls === "leisure" && /^(stadium|sports_centre|pitch)$/.test(typ)) return "sports";
+  // ---- SPORTS ----
+  if (cls === "leisure" && /(stadium|sports_centre|pitch|arena|court)/.test(typ))
+    return "sports";
 
-  // retail_areas
-  if (cls === "landuse" && /^(retail|commercial)$/.test(typ)) return "retail_areas";
+  // ---- RETAIL AREAS ----
+  if (cls === "landuse" && /(retail|commercial)/.test(typ))
+    return "retail_areas";
+  if (cls === "shop") return "retail_areas";
 
-  // neighborhoods (place=*)
-  if (cls === "place" && /^(suburb|neighbourhood|quarter)$/.test(typ)) return "neighborhoods";
+  // ---- NEIGHBORHOODS ----
+  if (cls === "place" && /(suburb|neighbourhood|quarter|district)/.test(typ))
+    return "neighborhoods";
 
   return null;
 }
@@ -801,9 +817,14 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
       }
 
       const list = (r.data.results || [])
-        .filter((it) => isPolygonGeom(it.geojson)) // UI deliberadamente só com polígonos
+        .filter((it) => it.geojson || it.boundingbox)
         .map((it) => {
           const center = getGeoJSONCenter(it.geojson);
+            it.geojson ? getGeoJSONCenter(it.geojson)
+            : it.boundingbox
+              ? [(+it.boundingbox[0] + +it.boundingbox[1]) / 2,
+                 (+it.boundingbox[2] + +it.boundingbox[3]) / 2]
+              : null;
           const oid = Number(it.osm_id ?? NaN);
           const knownCat = Number.isFinite(oid) ? knownCatByOsmId.get(oid) : null;
           const inferred = classTypeToCategory(it.class, it.type);
@@ -818,15 +839,6 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
 
       setResults(list);
 
-      if (list.length > 0) {
-        const fc = {
-          type:"FeatureCollection",
-          features: list
-            .filter(x=>x.geojson)
-            .map(x=>({type:"Feature", geometry:x.geojson}))
-        };
-        setTimeout(() => fitToGeoJSON(fc), 0);
-      }
     } catch (err) {
       console.error(err);
       const msg = err?.response?.data?.error || err?.message || "Erro desconhecido";
@@ -1176,13 +1188,7 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
           padding:"10px 12px",
           color:"#334155"
         }}>
-          Pesquise a localização, explore no mapa selecionando a(s) categoria(s) ou desenhe um polígono caso necessário.
-        </div>
-
-        {/* Frase final */}
-        <div style={{fontSize:".95rem", color:"#374151"}}>
-          Tente inserir as localizações que mais exprimam esta temática para si.
-          <p>Nota: os resultados são constrangidos à base de dados utilizada (OpenStreetMap, via api Nominatim)</p>
+          Insira as localizações que mais exprimam esta temática para si pesquisando pela localização, navegando no mapa através das categorias ou desenhando livremente.
         </div>
       </div>
 

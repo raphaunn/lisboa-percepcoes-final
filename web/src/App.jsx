@@ -659,18 +659,19 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
     });
   }, []);
 
-  useEffect(() => {
-    if (categories.length > 0 && selectedCats.size === 0) {
-      const all = new Set(categories.map(c => c.code));
-      setSelectedCats(all);
-  
+  // *ATIVAR CATEGORIAS POR DEFEITO - DESATIVADO PARA OTIMIZAÇÃO DE PROCESSAMENTO
+ // useEffect(() => {
+ //   if (categories.length > 0 && selectedCats.size === 0) {
+ //     const all = new Set(categories.map(c => c.code));
+ //     setSelectedCats(all);
+//  
       // carregar todas as categorias logo ao início
-      categories.forEach(cat => {
-        fetchCategory(cat.code, CITY_BBOX_PARAM);
-        catFirstGlobalRef.current[cat.code] = true;
-      });
-    }
-  }, [categories]);
+ //     categories.forEach(cat => {
+ //       fetchCategory(cat.code, CITY_BBOX_PARAM);
+ //       catFirstGlobalRef.current[cat.code] = true;
+ //     });
+ //   }
+ // }, [categories]);
 
   // Controle de versão de requisições por categoria
   const catReqVersionRef = useRef({}); // { [code]: number }

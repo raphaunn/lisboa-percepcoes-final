@@ -639,6 +639,7 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
   const [results, setResults] = useState([]);
   const [items, setItems] = useState([]);
   const [showHowTo, setShowHowTo] = useState(false);
+  const searchAbortRef = useRef(null);
 
   // Categorias
   const [categories, setCategories] = useState([]);
@@ -794,60 +795,77 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
   };
 
   // =================== BUSCA ===================
-  const runSearch = async () => {
-    const term = q.trim();
-    if (!term) return;
-    setLoadingSearch(true);
-    setResults([]);
-    try {
-      // índice osm_id -> categoria, a partir do que já está carregado
-      const knownCatByOsmId = new Map();
-      for (const code of Object.keys(catFeatures)) {
-        const feats = catFeatures[code] || [];
-        for (const f of feats) {
-          const oid = Number(f.osm_id ?? NaN);
-          if (Number.isFinite(oid)) knownCatByOsmId.set(oid, code);
-        }
+const runSearch = async () => {
+  const term = q.trim();
+  if (!term) return;
+
+  // === CANCELA A PESQUISA ANTERIOR ===
+  if (searchAbortRef.current) {
+    searchAbortRef.current.abort();
+  }
+  searchAbortRef.current = new AbortController();
+
+  setLoadingSearch(true);
+  setResults([]);
+
+  try {
+    // índice osm_id -> categoria já carregada
+    const knownCatByOsmId = new Map();
+    for (const code of Object.keys(catFeatures)) {
+      const feats = catFeatures[code] || [];
+      for (const f of feats) {
+        const oid = Number(f.osm_id ?? NaN);
+        if (Number.isFinite(oid)) knownCatByOsmId.set(oid, code);
       }
-
-      const r = await axios.get(`${API}/geocode`, { params: { q: term }});
-      if (r.data && r.data.error) {
-        alert(`Falha ao pesquisar no Nominatim via API.\n\nDetalhe: ${r.data.error}`);
-        setLoadingSearch(false);
-        return;
-      }
-
-      const list = (r.data.results || [])
-        .filter((it) => it.geojson || it.boundingbox)
-        .map((it) => {
-          const center = getGeoJSONCenter(it.geojson);
-            it.geojson ? getGeoJSONCenter(it.geojson)
-            : it.boundingbox
-              ? [(+it.boundingbox[0] + +it.boundingbox[1]) / 2,
-                 (+it.boundingbox[2] + +it.boundingbox[3]) / 2]
-              : null;
-          const oid = Number(it.osm_id ?? NaN);
-          const knownCat = Number.isFinite(oid) ? knownCatByOsmId.get(oid) : null;
-          const inferred = classTypeToCategory(it.class, it.type);
-          const cat = knownCat || inferred || null;
-          return {
-            ...it,
-            _center: center,
-            _cat: cat,
-            _color: catColor(cat),
-          };
-        });
-
-      setResults(list);
-
-    } catch (err) {
-      console.error(err);
-      const msg = err?.response?.data?.error || err?.message || "Erro desconhecido";
-      alert(`Falha ao pesquisar no Nominatim via API.\n\nDetalhe: ${msg}`);
-    } finally {
-      setLoadingSearch(false);
     }
-  };
+
+    const r = await axios.get(`${API}/geocode`, {
+      params: { q: term },
+      timeout: 6000,
+      signal: searchAbortRef.current.signal
+    });
+
+    if (r.data && r.data.error) {
+      alert(`Falha ao pesquisar no Nominatim via API.\n\nDetalhe: ${r.data.error}`);
+      return;
+    }
+
+    const list = (r.data.results || [])
+      .filter((it) => it.geojson || it.boundingbox)
+      .map((it) => {
+        const center = getGeoJSONCenter(it.geojson);
+        const oid = Number(it.osm_id ?? NaN);
+        const knownCat = Number.isFinite(oid) ? knownCatByOsmId.get(oid) : null;
+        const inferred = classTypeToCategory(it.class, it.type);
+        const cat = knownCat || inferred || null;
+        return {
+          ...it,
+          _center: center,
+          _cat: cat,
+          _color: catColor(cat),
+        };
+      });
+
+    setResults(list);
+
+  } catch (err) {
+    // === PESQUISA CANCELADA — NÃO FAZ NADA ===
+    if (
+      axios.isCancel?.(err) ||
+      err?.name === "CanceledError" ||
+      err?.name === "AbortError"
+    ) {
+      return;
+    }
+
+    console.error(err);
+    const msg = err?.response?.data?.error || err?.message || "Erro desconhecido";
+    alert(`Falha ao pesquisar no Nominatim via API.\n\nDetalhe: ${msg}`);
+
+  } finally {
+    setLoadingSearch(false);
+  }
+};
 
   // =================== DEDUP (OSM) ===================
   const hasOsmAlready = (osmIdRaw) => {

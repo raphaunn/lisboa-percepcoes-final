@@ -259,16 +259,20 @@ function Consent({ onOk, setPid, testMode }) {
     if (!allChecked) return;
 
     try {
-      const r = await axios.get(`${API}/consent`);
+      const r = await axios.get(`${API}/consent`, {
+        timeout: 5000   // 5 segundos para evitar freeze infinito
+      });
       try { localStorage.setItem("pid", r.data.participant_id); } catch {}
       setPid(r.data.participant_id);
       onOk();
     } catch (err) {
-      console.error(err);
-      alert(
-        "Não foi possível contactar a API (/api).\n" +
-        "Verifique se o servidor em https://api-lisbonperceptions.rederua.pt está online e tente novamente."
-      );
+      console.warn("Falha no consentimento remoto, criando ID local.");
+
+      // === fallback local ===
+      const fallback = `LOCAL-${Date.now()}`;
+      try { localStorage.setItem("pid", fallback); } catch {}
+      setPid(fallback);
+      onOk(); // segue mesmo assim
     }
   };
 

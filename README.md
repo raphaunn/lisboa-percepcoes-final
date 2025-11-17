@@ -1,8 +1,6 @@
-# The Lisbons Within Lisbon - WebGIS
-# As Lisboas de Lisboa – WebSIG
 **ENGLISH VERSION ABOVE • VERSÃO EM PORTUGUÊS ABAIXO**
----
-EN:
+
+# The Lisbons Within Lisbon - WebGIS (EN):
 
 Version: **lisboa-percepcoes-final_05.11.25**
 
@@ -119,7 +117,7 @@ Note: development was supported by AI-assisted tools.
 
 ---
 ---
-PT:
+# As Lisboas de Lisboa – WebSIG (PT):
 
 Versão: **lisboa-percepcoes-final_05.11.25**
 

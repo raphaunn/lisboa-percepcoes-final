@@ -116,7 +116,9 @@ Project developed as part of the Master’s thesis “As Lisboas de Lisboa: Part
 Note: development was supported by AI-assisted tools.
 
 ---
+
 ---
+
 # As Lisboas de Lisboa – WebSIG (PT):
 
 Versão: **lisboa-percepcoes-final_05.11.25**

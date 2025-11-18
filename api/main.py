@@ -48,7 +48,7 @@ CACHE_TTL_S = int(os.getenv("OVERPASS_CACHE_TTL", "300"))
 LISBON_BBOX = (-9.25, 38.69, -9.05, 38.80)
 VIEWBOX = f"{LISBON_BBOX[0]},{LISBON_BBOX[3]},{LISBON_BBOX[2]},{LISBON_BBOX[1]}"
 
-### ALTERAÇÃO 1 — mover import do CORS para aqui (mantém apenas uma vez)
+### ALTERAÇÃO 18.11.25 (1) — mover import do CORS para aqui (mantém apenas uma vez)
 from fastapi.middleware.cors import CORSMiddleware
 
 # Criação da app (deve vir ANTES de add_middleware)
@@ -64,7 +64,7 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
-### ALTERAÇÃO 2 — CORS aplicado exatamente como deve ser
+### ALTERAÇÃO 18.11.25 (2) — CORS aplicado exatamente como deve ser
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,   # mantém tua lista

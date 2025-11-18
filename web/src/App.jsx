@@ -253,6 +253,7 @@ function Consent({ onOk, setPid, testMode }) {
       const dummy = `TEST-${Date.now()}`;
       try { localStorage.setItem("pid", dummy); } catch {}
       setPid(dummy);
+      await new Promise(res => setTimeout(res, 200));
       onOk();
       return;
     }
@@ -393,16 +394,28 @@ function Profile({ participantId, onOk, testMode }) {
     }
     const payload = { ...form, ethnicity: consolidateEthnicity() };
     try {
-      await axios.post(`${API}/profile`, payload, { params: { participant_id: participantId }});
+      await axios.post(`${API}/profile`, payload, { params: { participant_id: participantId }, timeout: 5000});
       onOk();
     } catch (err) {
-      console.error(err);
-      alert(
-      "Falha ao contactar a API em /profile.\n" +
-      "Verifique se https://api-lisbonperceptions.rederua.pt está online e com acesso permitido a partir deste site."  
-      );
+      console.warn("Falha em /profile, tentando fallback. Por favor, aguarde.", err);
+  
+      // TENTA NOVAMENTE AUTOMATICAMENTE APÓS 1 SEGUNDO
+      try {
+        await new Promise(res => setTimeout(res, 1200));
+        await axios.post(`${API}/profile`, payload, {
+          params: { participant_id: participantId },
+          timeout: 8000
+        });
+        onOk();
+      } catch (err2) {
+        console.error("Fallback também falhou:", err2);
+        alert(
+          "A API demorou mais que o esperado ao guardar o perfil.\n" +
+          "Por favor, verifique sua internet e tente novamente."
+        );
+      }
     }
-  };
+  };  
 
   return (
     <div>

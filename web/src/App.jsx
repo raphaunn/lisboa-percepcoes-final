@@ -1224,7 +1224,7 @@ const runSearch = async () => {
           padding:"10px 12px",
           color:"#334155"
         }}>
-          Insira as localizações que mais exprimam esta temática para si pesquisando pela localização, navegando no mapa através das categorias ou desenhando livremente.
+          Insira <strong>tantas localizações quanto considerar relevantes para esta temática</strong>, pesquisando, navegando pelo mapa através das categorias ou desenhando livremente.
         </div>
       </div>
 

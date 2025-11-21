@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 from fastapi import FastAPI, APIRouter, Query, Request, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -67,7 +68,7 @@ ALLOWED_ORIGINS = [
 ### ALTERAÇÃO 18.11.25 (2) — CORS aplicado exatamente como deve ser
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,   # mantém tua lista
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

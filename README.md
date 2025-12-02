@@ -2,8 +2,6 @@
 
 # The Lisbons Within Lisbon - WebGIS (EN):
 
-Version: **lisboa-percepcoes-final_05.11.25**
-
 **Stack**:
 - **Frontend**: Vite + React + Leaflet (+ Leaflet.Draw)
 - **Backend**: FastAPI (Python)
@@ -122,8 +120,6 @@ Note: development was supported by AI-assisted tools.
 ---
 
 # As Lisboas de Lisboa – WebSIG (PT):
-
-Versão: **lisboa-percepcoes-final_05.11.25**
 
 **Stack**:
 - **Frontend**: Vite + React + Leaflet (+ Leaflet.Draw)

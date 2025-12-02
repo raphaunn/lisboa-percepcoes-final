@@ -37,8 +37,10 @@ lisboa-percepcoes/
 │   └── schema_public_v1_24.10.25.sql # Supabase DB structure (unused)
 │   └── schema_public_v2_25.11.25.sql # Reference schema (final version)
 │
-├── .gitignore # Ignore cache, node_modules, .env, etc.
-├── .gitattributes # Normalize line endings (LF/CRLF)
+├── .gitignore # Ignora cache, node_modules, .env, etc.
+├── .gitattributes # Normaliza fim de linha (LF/CRLF)
+├── CODE_OF_CONDUCT.md # Contributor Covenant Code of Conduct
+├── LICENSE # MIT Open Source Initiative License
 └── README.md # This document
 ```
 
@@ -158,6 +160,8 @@ lisboa-percepcoes/
 │
 ├── .gitignore # Ignora cache, node_modules, .env, etc.
 ├── .gitattributes # Normaliza fim de linha (LF/CRLF)
+├── CODE_OF_CONDUCT.md # Contributor Covenant Code of Conduct
+├── LICENSE # MIT Open Source Initiative License
 └── README.md # Este documento
 
   backups/

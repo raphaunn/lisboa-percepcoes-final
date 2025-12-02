@@ -491,7 +491,7 @@ function Profile({ participantId, onOk, testMode }) {
         </div>
       </fieldset>
 
-      <fieldset style={{border:"1px solid "#ddd", padding:"10px", marginBottom:"10px"}}>
+      <fieldset style={{border:"1px solid #ddd", padding:"10px", marginBottom:"10px"}}>
         <legend><strong>Habitação</strong></legend>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:"8px"}}>
           <label>Situação habitacional atual:

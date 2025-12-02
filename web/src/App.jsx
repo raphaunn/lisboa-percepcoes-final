@@ -330,6 +330,8 @@ function Profile({ participantId, onOk, testMode }) {
 
   // Estado para mostrar/ocultar nota discreta do rendimento (botão ℹ︎)
   const [showIncomeInfo, setShowIncomeInfo] = useState(false);
+  // Estado de "saving" para evitar múltiplos pedidos e melhorar UX
+  const [saving, setSaving] = useState(false);
 
   const ethnicityChoices = [
     "Branca","Preta/Negra","Parda/Mista","Amarela (ascendência asiática)","Indígena/Autóctone","Outra/Prefiro não dizer"
@@ -390,32 +392,29 @@ function Profile({ participantId, onOk, testMode }) {
   const save = async () => {
     if (testMode) { onOk(); return; }
     if (requiredMissing.length) {
-      alert("Por favor, preencha: \n- " + requiredMissing.join("\n- ")); return;
+      alert("Por favor, preencha: \n- " + requiredMissing.join("\n- "));
+      return;
     }
+    if (saving) return; // evita múltiplos cliques enquanto está a guardar
+
     const payload = { ...form, ethnicity: consolidateEthnicity() };
+    setSaving(true);
     try {
-      await axios.post(`${API}/profile`, payload, { params: { participant_id: participantId }, timeout: 5000});
+      await axios.post(`${API}/profile`, payload, {
+        params: { participant_id: participantId },
+        timeout: 15000  // timeout único mais generoso
+      });
       onOk();
     } catch (err) {
-      console.warn("Falha em /profile, tentando fallback. Por favor, aguarde.", err);
-  
-      // TENTA NOVAMENTE AUTOMATICAMENTE APÓS 1 SEGUNDO
-      try {
-        await new Promise(res => setTimeout(res, 1200));
-        await axios.post(`${API}/profile`, payload, {
-          params: { participant_id: participantId },
-          timeout: 8000
-        });
-        onOk();
-      } catch (err2) {
-        console.error("Fallback também falhou:", err2);
-        alert(
-          "A API demorou mais que o esperado ao guardar o perfil.\n" +
-          "Por favor, verifique sua internet e tente novamente."
-        );
-      }
+      console.error("Falha em /profile:", err);
+      alert(
+        "Não foi possível guardar o perfil neste momento.\n" +
+        "Por favor, verifique a ligação à internet e tente novamente."
+      );
+    } finally {
+      setSaving(false);
     }
-  };  
+  };
 
   return (
     <div>
@@ -492,7 +491,7 @@ function Profile({ participantId, onOk, testMode }) {
         </div>
       </fieldset>
 
-      <fieldset style={{border:"1px solid #ddd", padding:"10px", marginBottom:"10px"}}>
+      <fieldset style={{border:"1px solid "#ddd", padding:"10px", marginBottom:"10px"}}>
         <legend><strong>Habitação</strong></legend>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:"8px"}}>
           <label>Situação habitacional atual:
@@ -574,22 +573,63 @@ function Profile({ participantId, onOk, testMode }) {
         <legend><strong>Perceções</strong></legend>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:"8px"}}>
           <label>Qual o seu nível de conexão com Lisboa (sensação de pertença)? (1–5)
-            <input type="number" min="1" max="5" value={form.belonging_1_5 ?? ""} onChange={e=>setForm({...form, belonging_1_5: e.target.value===""? null : +e.target.value})}/>
-            <div style={{fontSize:".85rem", color:"#6b7280"}}>Indique de 1 a 5, sendo <strong>1</strong> “muito pouca ou nula conexão” e <strong>5</strong> “muita conexão”.</div>
-            <div style={{fontSize:".85rem", color:"#6b7280"}}><strong>Nota:</strong> “Pertença” refere-se à ligação emocional e social ao lugar e à comunidade.</div>
+            <input
+              type="number"
+              min="1"
+              max="5"
+              value={form.belonging_1_5 ?? ""}
+              onChange={e=>setForm({
+                ...form,
+                belonging_1_5: e.target.value===""? null : +e.target.value
+              })}
+            />
+            <div style={{fontSize:".85rem", color:"#6b7280"}}>
+              Indique de 1 a 5, sendo <strong>1</strong> “muito pouca ou nula conexão” e <strong>5</strong> “muita conexão”.
+            </div>
+            <div style={{fontSize:".85rem", color:"#6b7280"}}>
+              <strong>Nota:</strong> “Pertença” refere-se à ligação emocional e social ao lugar e à comunidade.
+            </div>
           </label>
           <label>Como avalia a sua sensação de segurança? (1–5)
-            <input type="number" min="1" max="5" value={form.safety_overall_1_5 ?? ""} onChange={e=>setForm({...form, safety_overall_1_5: e.target.value===""? null : +e.target.value})}/>
-            <div style={{fontSize:".85rem", color:"#6b7280"}}>Indique de 1 a 5, sendo <strong>1</strong> “muito baixa” e <strong>5</strong> “muito alta”.</div>
-            <div style={{fontSize:".85rem", color:"#6b7280"}}><strong>Nota:</strong> é uma perceção subjetiva influenciada por fatores pessoais e pela qualidade do espaço público.</div>
+            <input
+              type="number"
+              min="1"
+              max="5"
+              value={form.safety_overall_1_5 ?? ""}
+              onChange={e=>setForm({
+                ...form,
+                safety_overall_1_5: e.target.value===""? null : +e.target.value
+              })}
+            />
+            <div style={{fontSize:".85rem", color:"#6b7280"}}>
+              Indique de 1 a 5, sendo <strong>1</strong> “muito baixa” e <strong>5</strong> “muito alta”.
+            </div>
+            <div style={{fontSize:".85rem", color:"#6b7280"}}>
+              <strong>Nota:</strong> é uma perceção subjetiva influenciada por fatores pessoais e pela qualidade do espaço público.
+            </div>
           </label>
         </div>
       </fieldset>
 
       <div>
-        <button onClick={save} disabled={!testMode && requiredMissing.length>0}>Continuar</button>
-        {(!testMode && requiredMissing.length>0) && <div style={{ fontSize: ".9rem", color: "#666", marginTop: ".25rem" }}>Preencha os campos acima para prosseguir.</div>}
-        {testMode && <div style={{ fontSize: ".9rem", color: "#7c2d12", marginTop: ".4rem" }}>Modo Teste: pode continuar sem preencher tudo. Nada será gravado.</div>}
+        <button
+          onClick={save}
+          disabled={
+            (!testMode && requiredMissing.length > 0) || saving
+          }
+        >
+          {saving ? "A guardar..." : "Continuar"}
+        </button>
+        {(!testMode && requiredMissing.length>0) && (
+          <div style={{ fontSize: ".9rem", color: "#666", marginTop: ".25rem" }}>
+            Preencha os campos acima para prosseguir.
+          </div>
+        )}
+        {testMode && (
+          <div style={{ fontSize: ".9rem", color: "#7c2d12", marginTop: ".4rem" }}>
+            Modo Teste: pode continuar sem preencher tudo. Nada será gravado.
+          </div>
+        )}
       </div>
     </div>
   );

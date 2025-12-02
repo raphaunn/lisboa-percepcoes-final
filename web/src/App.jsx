@@ -372,7 +372,7 @@ function Profile({ participantId, onOk, testMode }) {
   if (!hasAnyRelation) requiredMissing.push("Relação com Lisboa (marque pelo menos uma)");
   if (!form.age_band) requiredMissing.push("Faixa etária");
   if (!form.gender) requiredMissing.push("Género");
-  if (!form._ethnicity_choice) requiredMissing.push("Etnia/raça");
+  if (!form._ethnicity_choice) requiredMissing.push("Identidade étnico-racial");
   if (!form.nationality) requiredMissing.push("Nacionalidade");
   if (!form.education) requiredMissing.push("Escolaridade completa");
   if (!form.income_band) requiredMissing.push("Rendimento médio mensal");
@@ -440,7 +440,7 @@ function Profile({ participantId, onOk, testMode }) {
               <option value="na">Prefiro não dizer</option>
             </select>
           </label>
-          <label>Etnia/raça (autoidentificação):
+          <label>Identidade étnico-racial:
             <select value={form._ethnicity_choice} onChange={e=>setForm({...form, _ethnicity_choice:e.target.value})}>
               <option value="">-- selecione --</option>
               {ethnicityChoices.map(x => <option key={x} value={x}>{x}</option>)}
@@ -573,7 +573,7 @@ function Profile({ participantId, onOk, testMode }) {
       }}>
         <legend><strong>Perceções</strong></legend>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:"8px"}}>
-          <label>Qual o seu nível de conexão com Lisboa (senso de pertença)? (1–5)
+          <label>Qual o seu nível de conexão com Lisboa (sensação de pertença)? (1–5)
             <input type="number" min="1" max="5" value={form.belonging_1_5 ?? ""} onChange={e=>setForm({...form, belonging_1_5: e.target.value===""? null : +e.target.value})}/>
             <div style={{fontSize:".85rem", color:"#6b7280"}}>Indique de 1 a 5, sendo <strong>1</strong> “muito pouca ou nula conexão” e <strong>5</strong> “muita conexão”.</div>
             <div style={{fontSize:".85rem", color:"#6b7280"}}><strong>Nota:</strong> “Pertença” refere-se à ligação emocional e social ao lugar e à comunidade.</div>
@@ -656,6 +656,7 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
   const [results, setResults] = useState([]);
   const [items, setItems] = useState([]);
   const [showHowTo, setShowHowTo] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const searchAbortRef = useRef(null);
 
   // Categorias
@@ -682,7 +683,7 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
  //   if (categories.length > 0 && selectedCats.size === 0) {
  //     const all = new Set(categories.map(c => c.code));
  //     setSelectedCats(all);
-//  
+ //  
       // carregar todas as categorias logo ao início
  //     categories.forEach(cat => {
  //       fetchCategory(cat.code, CITY_BBOX_PARAM);
@@ -812,77 +813,77 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
   };
 
   // =================== BUSCA ===================
-const runSearch = async () => {
-  const term = q.trim();
-  if (!term) return;
+  const runSearch = async () => {
+    const term = q.trim();
+    if (!term) return;
 
-  // === CANCELA A PESQUISA ANTERIOR ===
-  if (searchAbortRef.current) {
-    searchAbortRef.current.abort();
-  }
-  searchAbortRef.current = new AbortController();
+    // === CANCELA A PESQUISA ANTERIOR ===
+    if (searchAbortRef.current) {
+      searchAbortRef.current.abort();
+    }
+    searchAbortRef.current = new AbortController();
 
-  setLoadingSearch(true);
-  setResults([]);
+    setLoadingSearch(true);
+    setResults([]);
 
-  try {
-    // índice osm_id -> categoria já carregada
-    const knownCatByOsmId = new Map();
-    for (const code of Object.keys(catFeatures)) {
-      const feats = catFeatures[code] || [];
-      for (const f of feats) {
-        const oid = Number(f.osm_id ?? NaN);
-        if (Number.isFinite(oid)) knownCatByOsmId.set(oid, code);
+    try {
+      // índice osm_id -> categoria já carregada
+      const knownCatByOsmId = new Map();
+      for (const code of Object.keys(catFeatures)) {
+        const feats = catFeatures[code] || [];
+        for (const f of feats) {
+          const oid = Number(f.osm_id ?? NaN);
+          if (Number.isFinite(oid)) knownCatByOsmId.set(oid, code);
+        }
       }
-    }
 
-    const r = await axios.get(`${API}/geocode`, {
-      params: { q: term },
-      timeout: 6000,
-      signal: searchAbortRef.current.signal
-    });
-
-    if (r.data && r.data.error) {
-      alert(`Falha ao pesquisar no Nominatim via API.\n\nDetalhe: ${r.data.error}`);
-      return;
-    }
-
-    const list = (r.data.results || [])
-      .filter((it) => it.geojson || it.boundingbox)
-      .map((it) => {
-        const center = getGeoJSONCenter(it.geojson);
-        const oid = Number(it.osm_id ?? NaN);
-        const knownCat = Number.isFinite(oid) ? knownCatByOsmId.get(oid) : null;
-        const inferred = classTypeToCategory(it.class, it.type);
-        const cat = knownCat || inferred || null;
-        return {
-          ...it,
-          _center: center,
-          _cat: cat,
-          _color: catColor(cat),
-        };
+      const r = await axios.get(`${API}/geocode`, {
+        params: { q: term },
+        timeout: 6000,
+        signal: searchAbortRef.current.signal
       });
 
-    setResults(list);
+      if (r.data && r.data.error) {
+        alert(`Falha ao pesquisar no Nominatim via API.\n\nDetalhe: ${r.data.error}`);
+        return;
+      }
 
-  } catch (err) {
-    // === PESQUISA CANCELADA — NÃO FAZ NADA ===
-    if (
-      axios.isCancel?.(err) ||
-      err?.name === "CanceledError" ||
-      err?.name === "AbortError"
-    ) {
-      return;
+      const list = (r.data.results || [])
+        .filter((it) => it.geojson || it.boundingbox)
+        .map((it) => {
+          const center = getGeoJSONCenter(it.geojson);
+          const oid = Number(it.osm_id ?? NaN);
+          const knownCat = Number.isFinite(oid) ? knownCatByOsmId.get(oid) : null;
+          const inferred = classTypeToCategory(it.class, it.type);
+          const cat = knownCat || inferred || null;
+          return {
+            ...it,
+            _center: center,
+            _cat: cat,
+            _color: catColor(cat),
+          };
+        });
+
+      setResults(list);
+
+    } catch (err) {
+      // === PESQUISA CANCELADA — NÃO FAZ NADA ===
+      if (
+        axios.isCancel?.(err) ||
+        err?.name === "CanceledError" ||
+        err?.name === "AbortError"
+      ) {
+        return;
+      }
+
+      console.error(err);
+      const msg = err?.response?.data?.error || err?.message || "Erro desconhecido";
+      alert(`Falha ao pesquisar no Nominatim via API.\n\nDetalhe: ${msg}`);
+
+    } finally {
+      setLoadingSearch(false);
     }
-
-    console.error(err);
-    const msg = err?.response?.data?.error || err?.message || "Erro desconhecido";
-    alert(`Falha ao pesquisar no Nominatim via API.\n\nDetalhe: ${msg}`);
-
-  } finally {
-    setLoadingSearch(false);
-  }
-};
+  };
 
   // =================== DEDUP (OSM) ===================
   const hasOsmAlready = (osmIdRaw) => {
@@ -1127,9 +1128,19 @@ const runSearch = async () => {
   // =================== SUBMETER ===================
   const submit = async () => {
     for (const it of items) {
-      if (it.kind==="manual" && !it.name.trim()) { alert("Dê um nome a todos os polígonos criados antes de submeter."); return; }
+      if (it.kind === "manual" && !it.name.trim()) {
+        alert("Dê um nome a todos os polígonos criados antes de submeter.");
+        return;
+      }
     }
-    if (testMode) { onNext(); return; }
+
+    if (testMode) {
+      onNext();
+      return;
+    }
+
+    if (submitting) return;
+    setSubmitting(true);
 
     const payload = {
       participant_id: participantId,
@@ -1160,11 +1171,36 @@ const runSearch = async () => {
       })
     };
 
-    try { await axios.post(`${API}/submit`, payload); onNext(); }
-    catch (err) {
+    try {
+      await axios.post(`${API}/submit`, payload, { timeout: 8000 });
+      onNext();
+    } catch (err) {
       console.error(err);
-      const proceed = window.confirm("Falha ao guardar as seleções no servidor.\nDeseja continuar para a próxima etapa mesmo assim?");
-      if (proceed) onNext();
+      const retry = window.confirm(
+        "Falha ao guardar as seleções no servidor.\n\n" +
+        "Deseja tentar novamente agora?"
+      );
+      if (retry) {
+        try {
+          await axios.post(`${API}/submit`, payload, { timeout: 10000 });
+          onNext();
+          return;
+        } catch (err2) {
+          console.error(err2);
+          alert(
+            "Ainda não foi possível guardar as seleções.\n\n" +
+            "Verifique a sua ligação à internet e tente novamente dentro de instantes.\n\n" +
+            "Enquanto permanecer nesta página, as localizações continuam visíveis e pode voltar a clicar em \"Guardar e continuar\"."
+          );
+        }
+      } else {
+        alert(
+          "As localizações continuam visíveis nesta página.\n\n" +
+          "Pode voltar a tentar guardar clicando novamente em \"Guardar e continuar\"."
+        );
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -1527,8 +1563,13 @@ const runSearch = async () => {
           }}
         />
         <div style={{display:"flex", gap:8, marginTop:8, justifyContent:"flex-end", flexWrap:"wrap"}}>
-          <button onClick={items.length === 0 ? onSkip : submit}>
-            {items.length === 0 ? "Continuar sem mapear →" : "Guardar e continuar →"}
+          <button
+            onClick={items.length === 0 ? onSkip : submit}
+            disabled={items.length > 0 && submitting}
+          >
+            {items.length === 0
+              ? "Continuar sem mapear →"
+              : (submitting ? "A guardar..." : "Guardar e continuar →")}
           </button>
         </div>
       </div>

@@ -1684,13 +1684,22 @@ export default function App(){
           <div style={{marginTop:-8, fontSize:"0.8rem", marginBottom:13, color:"#666"}}>O que as diferentes perceções revelam sobre a cidade</div>
           <div style={{marginTop:10, marginBottom:16, color:"#666"}}><strong>Tese de Mestrado</strong></div>
         </div>
-        <img
-          src="/logo_novaims.png"
-          alt="NOVA IMS"
-          style={{height:42, opacity:.92, alignSelf:"center"}}
-          title="NOVA Information Management School"
-        />
-      </div>
+        <div style={{display:"flex", alignItems:"center", gap:10, marginBottom:10}}>
+            <img
+              src="/logo_novaims.png"
+              alt="NOVA IMS"
+              style={{height:42, opacity:.92}}
+              title="NOVA Information Management School"
+            />
+
+            <a href= "https://www.netlify.com" style={{display:"inline-flex"}}>
+              <img 
+                src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg" alt="Deploys by Netlify" 
+                style={{height:32}} 
+              />
+            </a>
+          </div>
+        </div>
 
       {step===0 && <Consent onOk={()=>setStep(1)} setPid={setPid} testMode={testMode} />}
       {step===1 && pid && <Profile participantId={pid} onOk={()=>setStep(2)} testMode={testMode} />}

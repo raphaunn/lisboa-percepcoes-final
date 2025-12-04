@@ -545,19 +545,117 @@ def geocode(q: str = Query(..., min_length=2)):
 
 # ===================== CATEGORIAS (Overpass) ===============================
 CATEGORIES: Dict[str, Dict[str, Any]] = {
-    "parks": {"label": "Parques e Jardins", "filters": [("leisure", "park"), ("leisure", "garden")], "regex": False, "primary_keys": ["leisure"]},
+    "parks": {
+        "label": "Parques e Jardins",
+        "filters": [
+            ("leisure", "park|garden|nature_reserve|golf_course"),
+            ("landuse", "grass|forest"),
+        ],
+        "regex": True,
+        "primary_keys": ["leisure", "landuse"],
+    },
+
     "public_buildings": {
         "label": "Edifícios públicos",
-        "filters": [("building", "public|civic|townhall|library|courthouse"), ("amenity", "townhall|library|courthouse|police|fire_station")],
-        "regex": True, "primary_keys": ["building", "amenity"],
+        "filters": [
+            ("building", "public|civic|townhall|library|courthouse|government"),
+            ("amenity", "police|fire_station|bureau|public_building|townhall|library"),
+        ],
+        "regex": True,
+        "primary_keys": ["building", "amenity"],
     },
-    "schools": {"label": "Escolas/Universidades", "filters": [("building", "school|university|college"), ("amenity", "school|university|college")], "regex": True, "primary_keys": ["building", "amenity"]},
-    "hospitals": {"label": "Hospitais/Clínicas", "filters": [("building", "hospital|clinic"), ("amenity", "hospital|clinic")], "regex": True, "primary_keys": ["building", "amenity"]},
-    "museums": {"label": "Museus", "filters": [("tourism", "museum")], "regex": False, "primary_keys": ["tourism"]},
-    "heritage": {"label": "Património/Histórico", "filters": [("historic", ".*"), ("heritage", ".*")], "regex": True, "primary_keys": ["historic", "heritage"]},
-    "sports": {"label": "Equipamentos desportivos", "filters": [("leisure", "stadium|sports_centre|pitch")], "regex": True, "primary_keys": ["leisure"]},
-    "retail_areas": {"label": "Áreas comerciais", "filters": [("landuse", "retail|commercial")], "regex": True, "primary_keys": ["landuse"]},
-    "neighborhoods": {"label": "Bairros/Regiões", "filters": [("place", "suburb|neighbourhood|quarter")], "regex": True, "primary_keys": ["place"]},
+
+    "schools": {
+        "label": "Escolas/Universidades",
+        "filters": [
+            ("building", "school|university|college|kindergarten"),
+            ("amenity", "school|university|college|kindergarten"),
+        ],
+        "regex": True,
+        "primary_keys": ["building", "amenity"],
+    },
+
+    "hospitals": {
+        "label": "Hospitais/Clínicas",
+        "filters": [
+            ("building", "hospital|clinic|doctors"),
+            ("amenity", "hospital|clinic|doctors|dentist"),
+        ],
+        "regex": True,
+        "primary_keys": ["building", "amenity"],
+    },
+
+    "museums": {
+        "label": "Museus e Equipamentos Culturais",
+        "filters": [
+            ("tourism", "museum|gallery"),
+            ("amenity", "theatre|cinema|arts_centre|community_centre|library"),
+        ],
+        "regex": True,
+        "primary_keys": ["tourism", "amenity"],
+    },
+
+    "heritage": {
+        "label": "Património/Histórico",
+        "filters": [
+            ("historic", ".*"),
+            ("heritage", ".*"),
+            ("amenity", "place_of_worship"),
+            ("building", "church|cathedral|chapel|temple|monastery"),
+        ],
+        "regex": True,
+        "primary_keys": ["historic", "heritage", "building", "amenity"],
+    },
+
+    "sports": {
+        "label": "Equipamentos desportivos",
+        "filters": [
+            ("leisure", "stadium|sports_centre|pitch|arena|court"),
+        ],
+        "regex": True,
+        "primary_keys": ["leisure"],
+    },
+
+    "retail_areas": {
+        "label": "Áreas comerciais",
+        "filters": [
+            ("landuse", "retail|commercial"),
+            ("shop", ".*"),
+        ],
+        "regex": True,
+        "primary_keys": ["landuse", "shop"],
+    },
+
+    "mobility_hubs": {
+        "label": "Transportes e Mobilidade",
+        "filters": [
+            ("railway", "station|halt|subway_entrance"),
+            ("public_transport", "station|platform|stop"),
+            ("amenity", "bus_station"),
+            ("aeroway", "terminal|helipad"),
+        ],
+        "regex": True,
+        "primary_keys": ["railway", "public_transport", "amenity", "aeroway"],
+    },
+
+    "public_spaces": {
+        "label": "Praças e Espaços Públicos",
+        "filters": [
+            ("place", "square"),
+            ("highway", "pedestrian"),
+        ],
+        "regex": True,
+        "primary_keys": ["place", "highway"],
+    },
+
+    "neighborhoods": {
+        "label": "Bairros/Regiões",
+        "filters": [
+            ("place", "suburb|neighbourhood|quarter|district"),
+        ],
+        "regex": True,
+        "primary_keys": ["place"],
+    },
 }
 
 def _parse_bbox(bbox_str: str) -> Tuple[float, float, float, float]:

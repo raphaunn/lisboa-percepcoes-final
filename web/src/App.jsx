@@ -1622,17 +1622,17 @@ function ThemeWizard({ participantId, onDone, testMode }) {
   const pages = [
     {
       code: "identity",
-      title: "Para si, quais os lugares que mais expressam a identidade de Lisboa?",
+      title: "➀ Para si, quais os lugares que mais expressam a identidade de Lisboa?",
       prompt: "Assinale áreas que, na sua perceção, representam melhor a identidade lisboeta."
     },
     {
       code: "cultural_change",
-      title: "Para si, quais os lugares que têm vindo a descaracterizar-se culturalmente?",
+      title: "➁ Para si, quais os lugares que têm vindo a descaracterizar-se culturalmente?",
       prompt: "Pense em zonas onde, na sua perceção, houve perda de comércio local e/ou afetação do modo de vida tradicional."
     },
     {
       code: "cost_sense",
-      title: "Sensação de encarecimento",
+      title: "➂ Sensação de encarecimento",
       prompt: "Quais são as áreas que, para si, transmitem uma sensação de encarecimento/custo de vida elevado (ex.: preços de comércio, serviços, habitação)?"
     }
   ];
@@ -1691,13 +1691,6 @@ export default function App(){
               style={{height:42, opacity:.92}}
               title="NOVA Information Management School"
             />
-
-            <a href= "https://www.netlify.com" style={{display:"inline-flex"}}>
-              <img 
-                src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg" alt="Deploys by Netlify" 
-                style={{height:32}} 
-              />
-            </a>
           </div>
         </div>
 
@@ -1714,6 +1707,24 @@ export default function App(){
       )}
 
       <TestModeToggle testMode={testMode} setTestMode={setTestMode} />
+
+      <footer style={{
+        width:"100%",
+        display:"flex",
+        justifyContent:"flex-end", 
+        padding:"10px 0",
+        marginTop:"1px",
+        opacity:0.9
+      }}>
+        <a href="https://www.netlify.com" target="_blank">
+          <img 
+            src="https://www.netlify.com/assets/badges/netlify-badge-color-bg.svg" 
+            alt="Deploys by Netlify"
+            style={{height:30}}
+          />
+        </a>
+    </footer>
+      
     </div>
   );
 }

@@ -22,12 +22,11 @@ const CATEGORY_META = {
   public_buildings: { label: "Edifícios públicos",       color: "#1f2937" },
   schools:          { label: "Escolas/Universidades",    color: "#2563eb" },
   hospitals:        { label: "Hospitais/Clínicas",       color: "#dc2626" },
-  museums:          { label: "Museus e Equipamentos culturais",                   color: "#7c3aed" },
+  museums:          { label: "Museus",                   color: "#7c3aed" },
   heritage:         { label: "Património/Histórico",     color: "#8b5e34" },
   sports:           { label: "Equipamentos desportivos", color: "#0f766e" },
   retail_areas:     { label: "Áreas comerciais",         color: "#ea580c" },
-  mobility_hubs:    { label: "Transportes e Mobilidade", color: "#0284c7" },   
-  public_spaces:    { label: "Praças e Espaços Públicos",color: "#b45309" },   
+  // NOVO:
   neighborhoods:    { label: "Bairros/Regiões",          color: "#b45309" },
 };
 
@@ -67,18 +66,10 @@ function classTypeToCategory(osmClass, osmType) {
   // ---- MUSEUMS ----
   if (cls === "tourism" && /(museum|gallery)/.test(typ))
     return "museums";
-  if (cls === "amenity" && /(theatre|cinema|arts_centre|community_centre|library)/.test(typ))
-    return "museums";
-  if (cls === "tourism" && /(theatre|gallery)/.test(typ))
-    return "museums";
 
   // ---- HERITAGE ----
   if (cls === "historic" || cls === "heritage") return "heritage";
   if (cls === "tourism" && /(attraction|artwork|monument)/.test(typ))
-    return "heritage";
-  if (cls === "amenity" && /(place_of_worship)/.test(typ))
-    return "heritage";
-  if (cls === "building" && /(church|cathedral|chapel|temple|monastery)/.test(typ))
     return "heritage";
 
   // ---- SPORTS ----
@@ -89,22 +80,6 @@ function classTypeToCategory(osmClass, osmType) {
   if (cls === "landuse" && /(retail|commercial)/.test(typ))
     return "retail_areas";
   if (cls === "shop") return "retail_areas";
-
-  // ---- MOBILITY HUBS ----
-  if (cls === "railway" && /(station|halt|subway_entrance)/.test(typ))
-    return "mobility_hubs";
-  if (cls === "public_transport" && /(station|platform|stop)/.test(typ))
-    return "mobility_hubs";
-  if (cls === "amenity" && /bus_station/.test(typ))
-    return "mobility_hubs";
-  if (cls === "aeroway" && /(terminal|helipad)/.test(typ))
-    return "mobility_hubs";
-
-  // ---- PUBLIC SPACES ----
-  if (cls === "place" && /(square)/.test(typ))
-    return "public_spaces";
-  if (cls === "highway" && /(pedestrian)/.test(typ))
-    return "public_spaces";
 
   // ---- NEIGHBORHOODS ----
   if (cls === "place" && /(suburb|neighbourhood|quarter|district)/.test(typ))

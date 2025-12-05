@@ -895,12 +895,12 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
 
       const r = await axios.get(`${API}/geocode`, {
         params: { q: term },
-        timeout: 6000,
+        timeout: 10000,
         signal: searchAbortRef.current.signal
       });
 
       if (r.data && r.data.error) {
-        alert(`Falha ao pesquisar no Nominatim via API.\n\nDetalhe: ${r.data.error}`);
+        alert(`Lentidão inesperada ao tentar pesquisar no Nominatim via API. Tente executar a ação novamente.\n\nDetalhe: ${r.data.error}`);
         return;
       }
 

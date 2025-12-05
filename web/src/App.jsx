@@ -400,16 +400,31 @@ function Profile({ participantId, onOk, testMode }) {
     const payload = { ...form, ethnicity: consolidateEthnicity() };
     setSaving(true);
     try {
-      await axios.post(`${API}/profile`, payload, {
+      const resp = await axios.post(`${API}/profile`, payload, {
         params: { participant_id: participantId },
-        timeout: 15000  // timeout único mais generoso
+        timeout: 15000,
       });
+      console.log("Resposta /profile OK:", resp.status, resp.data);
       onOk();
     } catch (err) {
+      const status = err?.response?.status;
+      const data = err?.response?.data;
+
       console.error("Falha em /profile:", err);
+      console.log("STATUS /profile:", status);
+      console.log("BODY /profile:", data);
+
+      let extra = "";
+      if (data?.error) {
+        extra = `\nDetalhe técnico: ${data.error}`;
+      } else if (typeof data === "string") {
+        extra = `\nResposta: ${data}`;
+      }
+
       alert(
         "Não foi possível guardar o perfil neste momento.\n" +
-        "Por favor, verifique a ligação à internet e tente novamente."
+        "Por favor, verifique a ligação à internet e tente novamente." +
+        extra
       );
     } finally {
       setSaving(false);

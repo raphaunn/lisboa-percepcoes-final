@@ -15,6 +15,8 @@ import psycopg2
 import psycopg2.extras
 from threading import Lock
 
+from fastapi.exceptions import HTTPException as FastAPIHTTPException
+
 # (opcional) .env
 try:
     from dotenv import load_dotenv  # type: ignore
@@ -75,6 +77,18 @@ app.add_middleware(
 )
 
 # ===================== Handler global p/ JSON legível =====================
+from fastapi.exceptions import HTTPException as FastAPIHTTPException
+
+@app.exception_handler(FastAPIHTTPException)
+async def http_exc_handler(request: Request, exc: FastAPIHTTPException):
+    """
+    Garante que HTTPException devolve o status original e uma estrutura consistente.
+    """
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"ok": False, "error": str(exc.detail)},
+    )
+
 @app.exception_handler(Exception)
 async def all_exceptions_handler(request: Request, exc: Exception):
     print("\n=== Unhandled Exception ===")
@@ -83,7 +97,6 @@ async def all_exceptions_handler(request: Request, exc: Exception):
         status_code=500,
         content={"ok": False, "error": f"{type(exc).__name__}: {str(exc)}"},
     )
-# ==========================================================================
 
 # ===================== MODELOS ============================================
 class ManualPolygon(BaseModel):
@@ -268,19 +281,43 @@ def upsert_osm_cache(cur, rec: Dict[str, Any]):
 # ===================== /profile ============================================
 @app.post("/profile")
 async def profile(request: Request, participant_id: Optional[str] = Query(None)):
+    # 1) participant_id obrigatório
+    if not participant_id:
+        raise HTTPException(status_code=400, detail="participant_id é obrigatório")
+
+    # 2) corpo JSON robusto
     data = await _safe_json_from_request(request)
     if not isinstance(data, dict):
         data = {"payload": data}
 
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            if participant_id:
+    try:
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                # garante entrada em participants
                 ensure_participant(cur, participant_id)
+                # upsert no perfil
                 upsert_profile(cur, participant_id, data)
-        conn.commit()
+            conn.commit()
+    except psycopg2.Error as e:
+        # Erro explícito de BD
+        print("\n=== psycopg2 error in /profile ===")
+        print(repr(e))
+        # detalhe técnico devolvido no campo "error"
+        raise HTTPException(
+            status_code=500,
+            detail=f"db_error {e.pgcode or ''}: {str(e).strip()}",
+        )
+    except Exception as e:
+        # Outros erros inesperados
+        print("\n=== Generic error in /profile ===")
+        print(repr(e))
+        raise HTTPException(
+            status_code=500,
+            detail=f"internal_error: {str(e)}",
+        )
 
     return {"ok": True, "participant_id": participant_id, "received": data}
-
+    
 # ===================== BUSCA (Nominatim + Overpass) ========================
 def _bbox_overlap(item_bbox: List[str], bbox: Tuple[float, float, float, float]) -> bool:
     try:

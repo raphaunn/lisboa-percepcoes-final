@@ -16,28 +16,24 @@ const TEST_PASSWORD = "lisboa123";
 const LISBON_BBOX = [-9.25, 38.69, -9.05, 38.80];
 const CITY_BBOX_PARAM = `${LISBON_BBOX[0]},${LISBON_BBOX[1]},${LISBON_BBOX[2]},${LISBON_BBOX[3]}`;
 
-// Catálogo de categorias (rótulo + cor) — deve refletir o backend
+// Catálogo de categorias (rótulo + cor) — deve refletir exatamente o backend
 const CATEGORY_META = {
-  parks:            { label: "Parques e Jardins",              color: "#2e7d32" },
-  public_buildings: { label: "Edifícios e espaços públicos",   color: "#1f2937" },
-  schools:          { label: "Escolas/Universidades",          color: "#2563eb" },
-  hospitals:        { label: "Hospitais/Clínicas",             color: "#dc2626" },
-  museums:          { label: "Museus e equipamentos culturais",color: "#7c3aed" },
-  heritage:         { label: "Património/Histórico",           color: "#8b5e34" },
-  sports:           { label: "Equipamentos desportivos",       color: "#0f766e" },
-  retail_areas:     { label: "Áreas comerciais",               color: "#ea580c" },
-  neighborhoods:    { label: "Bairros/Regiões",                color: "#b45309" },
-
-  // NOVO:
-  mobility_hubs:    { label: "Hubs de mobilidade",             color: "#0ea5e9" },
+  parks:            { label: "Parques e Jardins",       color: "#2e7d32" },
+  public_buildings: { label: "Edifícios públicos",       color: "#1f2937" },
+  schools:          { label: "Escolas/Universidades",    color: "#2563eb" },
+  hospitals:        { label: "Hospitais/Clínicas",       color: "#dc2626" },
+  museums:          { label: "Museus",                   color: "#7c3aed" },
+  heritage:         { label: "Património/Histórico",     color: "#8b5e34" },
+  sports:           { label: "Equipamentos desportivos", color: "#0f766e" },
+  retail_areas:     { label: "Áreas comerciais",         color: "#ea580c" },
+  neighborhoods:    { label: "Bairros/Regiões",          color: "#b45309" },
 };
 
 function catColor(code) {
   return CATEGORY_META[code]?.color || "#6b7280";
-
 }
 
-// Mapeia class/type do OSM para uma categoria (heurística)
+// Mapeia class/type do OSM para categorias (alinhado com backend)
 function classTypeToCategory(osmClass, osmType) {
   const cls = (osmClass || "").toLowerCase();
   const typ = (osmType || "").toLowerCase();
@@ -48,25 +44,11 @@ function classTypeToCategory(osmClass, osmType) {
   if (cls === "landuse" && /(grass|forest)/.test(typ))
     return "parks";
 
-  // ---- MOBILITY HUBS (NOVO) ----
-  // Stations, hubs de transporte, etc.
-  if (cls === "railway" && /(station|halt)/.test(typ))
-    return "mobility_hubs";                         // railway=station / halt :contentReference[oaicite:0]{index=0}
-  if (cls === "amenity" && /(bus_station|ferry_terminal)/.test(typ))
-    return "mobility_hubs";                         // amenity=bus_station / ferry_terminal :contentReference[oaicite:1]{index=1}
-  if (cls === "public_transport" && /(station|stop_position|platform)/.test(typ))
-    return "mobility_hubs";                         // public_transport=station,stop_position,platform :contentReference[oaicite:2]{index=2}
-  if (cls === "aeroway" && /(aerodrome|terminal)/.test(typ))
-    return "mobility_hubs";                         // aeroway=aerodrome/terminal (aeroporto como hub principal)
-
-  // ---- PUBLIC BUILDINGS / PUBLIC SPACES ----
+  // ---- PUBLIC BUILDINGS ----
   if (cls === "building" && /(public|civic|townhall|library|courthouse|government)/.test(typ))
     return "public_buildings";
-  if (cls === "amenity" && /(police|fire_station|bureau|public_building|townhall)/.test(typ))
+  if (cls === "amenity" && /(police|fire_station|bureau|public_building)/.test(typ))
     return "public_buildings";
-  // praças / largos principais – place=square
-  if (cls === "place" && /square/.test(typ))
-    return "public_buildings";                      // place=square :contentReference[oaicite:3]{index=3}
 
   // ---- SCHOOLS ----
   if (cls === "building" && /(school|university|college|kindergarten)/.test(typ))
@@ -80,22 +62,15 @@ function classTypeToCategory(osmClass, osmType) {
   if (cls === "amenity" && /(hospital|clinic|doctors|dentist)/.test(typ))
     return "hospitals";
 
-  // ---- MUSEUS & EQUIPAMENTOS CULTURAIS ----
+  // ---- MUSEUMS ----
   if (cls === "tourism" && /(museum|gallery)/.test(typ))
-    return "museums";                               // tourism=museum/gallery :contentReference[oaicite:4]{index=4}
-  if (cls === "amenity" && /(theatre|cinema|arts_centre|community_centre)/.test(typ))
-    return "museums";                               // amenity=theatre/cinema/arts_centre/community_centre :contentReference[oaicite:5]{index=5}
+    return "museums";
 
-  // ---- HERITAGE (incluindo igrejas, capelas, etc.) ----
+  // ---- HERITAGE ----
   if (cls === "historic" || cls === "heritage")
     return "heritage";
   if (cls === "tourism" && /(attraction|artwork|monument)/.test(typ))
     return "heritage";
-  // templos / igrejas
-  if (cls === "amenity" && /place_of_worship/.test(typ))
-    return "heritage";                              // amenity=place_of_worship :contentReference[oaicite:6]{index=6}
-  if (cls === "building" && /(church|chapel|cathedral)/.test(typ))
-    return "heritage";                              // building=church/chapel/cathedral :contentReference[oaicite:7]{index=7}
 
   // ---- SPORTS ----
   if (cls === "leisure" && /(stadium|sports_centre|pitch|arena|court)/.test(typ))

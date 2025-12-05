@@ -93,10 +93,6 @@ function isPolygonGeom(gj) {
   return !!gj && (gj.type === "Polygon" || gj.type === "MultiPolygon");
 }
 
-function isPolygonGeom(gj) {
-  return !!gj && (gj.type === "Polygon" || gj.type === "MultiPolygon");
-}
-
 // ---- cálculo robusto do centro ----
 function _bboxFromCoordsArray(lonlatArray) {
   let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;

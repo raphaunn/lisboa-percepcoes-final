@@ -18,15 +18,15 @@ const CITY_BBOX_PARAM = `${LISBON_BBOX[0]},${LISBON_BBOX[1]},${LISBON_BBOX[2]},$
 
 // Catálogo de categorias (rótulo + cor) — deve refletir exatamente o backend
 const CATEGORY_META = {
-  parks:            { label: "Parques e Jardins",       color: "#2e7d32" },
-  public_buildings: { label: "Edifícios públicos",       color: "#1f2937" },
-  schools:          { label: "Escolas/Universidades",    color: "#2563eb" },
-  hospitals:        { label: "Hospitais/Clínicas",       color: "#dc2626" },
-  museums:          { label: "Museus",                   color: "#7c3aed" },
-  heritage:         { label: "Património/Histórico",     color: "#8b5e34" },
-  sports:           { label: "Equipamentos desportivos", color: "#0f766e" },
-  retail_areas:     { label: "Áreas comerciais",         color: "#ea580c" },
-  neighborhoods:    { label: "Bairros/Regiões",          color: "#b45309" },
+  parks:            { label: "Parques e Jardins",                color: "#2e7d32" },
+  public_buildings: { label: "Edifícios públicos",               color: "#1f2937" },
+  schools:          { label: "Escolas/Universidades",            color: "#2563eb" },
+  hospitals:        { label: "Hospitais/Clínicas",               color: "#dc2626" },
+  museums:          { label: "Museus e Equipamentos culturais",  color: "#7c3aed" },
+  heritage:         { label: "Património/Histórico",             color: "#8b5e34" },
+  sports:           { label: "Equipamentos desportivos",         color: "#0f766e" },
+  retail_areas:     { label: "Áreas comerciais",                 color: "#ea580c" },
+  neighborhoods:    { label: "Bairros/Regiões",                  color: "#b45309" },
 };
 
 function catColor(code) {

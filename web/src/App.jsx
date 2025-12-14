@@ -250,6 +250,9 @@ function Consent({ onOk, setPid, testMode }) {
   const allChecked = agreeTerms && consent;
 
   const create = async () => {
+      try {
+        localStorage.removeItem("pid");
+      } catch {}
     if (testMode) {
       const dummy = `TEST-${Date.now()}`;
       try { localStorage.setItem("pid", dummy); } catch {}
@@ -423,8 +426,9 @@ function Profile({ participantId, onOk, testMode }) {
       }
 
       alert(
-        "Não foi possível guardar o perfil neste momento.\n" +
-        "Por favor, verifique a ligação à internet e tente novamente." +
+        "Não foi possível guardar o perfil neste momento.\n\n" +
+        "Isto pode acontecer se a sessão anterior não foi concluída.\n" +
+        "Por favor, atualize a página e volte a iniciar o questionário.\n" +
         extra
       );
     } finally {
@@ -905,7 +909,7 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
       }
 
       const list = (r.data.results || [])
-        .filter((it) => it.geojson || it.boundingbox)
+        .filter((it) => isPolygonGeom(it.geojson))
         .map((it) => {
           const center = getGeoJSONCenter(it.geojson);
           const oid = Number(it.osm_id ?? NaN);

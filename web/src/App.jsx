@@ -286,12 +286,13 @@ function Consent({ onOk, setPid, testMode }) {
       <h2 style={{ fontSize: "1.4rem", marginBottom: "0.5rem" }}>
         <strong>Olá!</strong>
       </h2>
-      <p>Estamos a tentar perceber as várias Lisboas dentro de Lisboa e <strong>a sua participação é essencial!</strong></p>
-      <p>Pretendemos identificar tendências na forma como diferentes pessoas veem a mesma paisagem urbana.</p>
+      <p>O objetivo deste inquérito interativo é mapear as diferentes Lisboas dentro de Lisboa e, para isto, <strong>a sua participação é essencial!</strong></p>
+      <p>Pretende-se identificar tendências na forma como diferentes pessoas enxergam a mesma paisagem urbana.</p>
       <p>Esse projeto é realizado em contexto acadêmico, em âmbito do Mestrado de Ciências e Sistemas de Informação Geográfica, pela NOVA IMS.</p>
       <p>O desenvolvimento da plataforma é autoral e o domínio foi contributo da <strong>Rede RUA</strong> (rederua.pt), uma startup de impacto social, com valores alinhados ao projeto, que se prestou a colaborar.</p>
       <p>Este formulário é anónimo e os dados serão usados exclusivamente para fins científicos.</p>
       <p>O tempo estimado é de aproximadamente 5 minutos.</p>
+      <p><strong>Nota:</strong> é possível que oscilações na conexão com as bases de dados ocorram e obriguem carregar o botão desejado novamente ou recarregar a página.</p>
 
       <div style={{ marginTop: "1rem", display: "grid", gap: "0.5rem" }}>
         <label><input type="checkbox" checked={agreeTerms} onChange={(e)=>setAgreeTerms(e.target.checked)}/> Li e concordo com os termos de uso.</label>

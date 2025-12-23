@@ -12,6 +12,12 @@ import { EditControl } from "react-leaflet-draw";
 const API = "https://api-lisbonperceptions.rederua.pt/api";
 const TEST_PASSWORD = "lisboa123";
 
+if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations?.()
+    .then((regs) => regs.forEach((r) => r.unregister().catch(() => {})))
+    .catch(() => {});
+}
+
 // BBOX aproximado da cidade de Lisboa (minLon, minLat, maxLon, maxLat)
 const LISBON_BBOX = [-9.25, 38.69, -9.05, 38.80];
 const CITY_BBOX_PARAM = `${LISBON_BBOX[0]},${LISBON_BBOX[1]},${LISBON_BBOX[2]},${LISBON_BBOX[3]}`;
@@ -152,6 +158,14 @@ function getGeoJSONCenter(geojson) {
 }
 
 const normalizeOsmId = (x) => Number(x ?? NaN);
+
+async function getFreshPid() {
+  const r = await axios.get(`${API}/consent`, { timeout: 15000 });
+  const pid = r?.data?.participant_id;
+  if (!pid) throw new Error("API /consent não devolveu participant_id.");
+  try { localStorage.setItem("pid", pid); } catch {}
+  return pid;
+}
 
 // ====== PIP (point-in-polygon) ======
 function pointInRing(lat, lon, ringLonLat) {
@@ -309,7 +323,7 @@ function Consent({ onOk, setPid, testMode }) {
 }
 
 // =================== PERFIL ===================
-function Profile({ participantId, onOk, testMode }) {
+function Profile({ participantId, onOk, testMode, setPid }) {
   const [form, setForm] = useState({
     age_band: "",
     gender: "",
@@ -400,36 +414,56 @@ function Profile({ participantId, onOk, testMode }) {
       alert("Por favor, preencha: \n- " + requiredMissing.join("\n- "));
       return;
     }
-    if (saving) return; // evita múltiplos cliques enquanto está a guardar
+    if (saving) return;
 
     const payload = { ...form, ethnicity: consolidateEthnicity() };
     setSaving(true);
-    try {
-      const resp = await axios.post(`${API}/profile`, payload, {
-        params: { participant_id: participantId },
-        timeout: 15000,
+
+    const postWithPid = (pid) =>
+      axios.post(`${API}/profile`, payload, {
+        params: { participant_id: pid },
+        timeout: 20000,
       });
-      console.log("Resposta /profile OK:", resp.status, resp.data);
+
+    try {
+      await postWithPid(participantId);
       onOk();
+      return;
     } catch (err) {
       const status = err?.response?.status;
       const data = err?.response?.data;
+      const msg = (data?.error || err?.message || "").toString().toLowerCase();
 
-      console.error("Falha em /profile:", err);
-      console.log("STATUS /profile:", status);
-      console.log("BODY /profile:", data);
+      // Heurística: “cara de problema de pid/sessão”
+      const looksLikePidProblem =
+        status === 404 || status === 409 || status === 422 ||
+        msg.includes("participant") ||
+        msg.includes("not found") ||
+        msg.includes("duplicate") ||
+        msg.includes("already") ||
+        msg.includes("foreign key") ||
+        msg.includes("invalid");
+
+      if (looksLikePidProblem) {
+        try {
+          const newPid = await getFreshPid();
+          if (typeof setPid === "function") setPid(newPid);
+
+          await postWithPid(newPid);
+          onOk();
+          return;
+        } catch (err2) {
+          console.error("Auto-recuperação de pid falhou:", err2);
+        }
+      }
 
       let extra = "";
-      if (data?.error) {
-        extra = `\nDetalhe técnico: ${data.error}`;
-      } else if (typeof data === "string") {
-        extra = `\nResposta: ${data}`;
-      }
+      if (data?.error) extra = `\nDetalhe técnico: ${data.error}`;
+      else if (typeof data === "string") extra = `\nResposta: ${data}`;
 
       alert(
         "Não foi possível guardar o perfil neste momento.\n\n" +
-        "Isto pode acontecer se a sessão anterior não foi concluída.\n" +
-        "Por favor, atualize a página e volte a iniciar o questionário.\n" +
+        "Tente novamente. Se persistir, recarregue a página.\n" +
         extra
       );
     } finally {
@@ -1716,7 +1750,14 @@ export default function App(){
         </div>
 
       {step===0 && <Consent onOk={()=>setStep(1)} setPid={setPid} testMode={testMode} />}
-      {step===1 && pid && <Profile participantId={pid} onOk={()=>setStep(2)} testMode={testMode} />}
+      {step===1 && pid && (
+        <Profile
+          participantId={pid}
+          setPid={setPid}
+          onOk={() => setStep(2)}
+          testMode={testMode}
+        />
+      )}
       {step===2 && pid && <ThemeWizard participantId={pid} onDone={()=>setStep(3)} testMode={testMode} />}
 
       {step===3 && (

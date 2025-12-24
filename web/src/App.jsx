@@ -862,11 +862,30 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
   useEffect(() => {
     (async () => {
       try {
-        const r = await axios.get(`${API}/lisbon_boundary`);
-        const gj = r.data?.geojson;
-        if (isPolygonGeom(gj)) setLisbonBoundary(gj);
+        const r = await axios.get(`${API}/lisbon_boundary`, { timeout: 15000 });
+  
+        let gj = r.data?.geojson;
+  
+        // Se vier como string JSON
+        if (typeof gj === "string") {
+          try { gj = JSON.parse(gj); } catch { /* ignore */ }
+        }
+  
+        // Se vier embrulhado como Feature/FeatureCollection
+        let geom = gj;
+        if (gj?.type === "Feature") geom = gj.geometry;
+        if (gj?.type === "FeatureCollection") {
+          // pega a primeira geometria poligonal que encontrar
+          geom = gj.features?.map(f => f?.geometry).find(g => g && (g.type === "Polygon" || g.type === "MultiPolygon"));
+        }
+  
+        if (isPolygonGeom(geom)) {
+          setLisbonBoundary(geom);
+        } else {
+          console.warn("lisbon_boundary recebido, mas não é Polygon/MultiPolygon:", gj);
+        }
       } catch (e) {
-        console.warn("Falha ao carregar limite de Lisboa; usando apenas BBOX.");
+        console.warn("Falha ao carregar limite de Lisboa; usando apenas BBOX.", e?.message || e);
       }
     })();
   }, []);

@@ -99,6 +99,34 @@ function isPolygonGeom(gj) {
   return !!gj && (gj.type === "Polygon" || gj.type === "MultiPolygon");
 }
 
+function unwrapPolygonGeometry(gj) {
+  if (!gj) return null;
+
+  // Geometry direta
+  if (gj.type === "Polygon" || gj.type === "MultiPolygon") return gj;
+
+  // Feature
+  if (gj.type === "Feature" && gj.geometry) {
+    const g = gj.geometry;
+    if (g.type === "Polygon" || g.type === "MultiPolygon") return g;
+  }
+
+  // FeatureCollection (pega a primeira feature poligonal)
+  if (gj.type === "FeatureCollection" && Array.isArray(gj.features)) {
+    for (const f of gj.features) {
+      const g = f?.geometry;
+      if (g && (g.type === "Polygon" || g.type === "MultiPolygon")) return g;
+    }
+  }
+
+  return null;
+}
+
+function asFeatureFromGeometry(geom) {
+  if (!geom) return null;
+  return { type: "Feature", properties: {}, geometry: geom };
+}
+
 // ---- cálculo robusto do centro ----
 function _bboxFromCoordsArray(lonlatArray) {
   let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
@@ -863,34 +891,19 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
     (async () => {
       try {
         const r = await axios.get(`${API}/lisbon_boundary`, { timeout: 15000 });
+        const raw = r.data?.geojson;
+        const geom = unwrapPolygonGeometry(raw);
   
-        let gj = r.data?.geojson;
-  
-        // Se vier como string JSON
-        if (typeof gj === "string") {
-          try { gj = JSON.parse(gj); } catch { /* ignore */ }
-        }
-  
-        // Se vier embrulhado como Feature/FeatureCollection
-        let geom = gj;
-        if (gj?.type === "Feature") geom = gj.geometry;
-        if (gj?.type === "FeatureCollection") {
-          // pega a primeira geometria poligonal que encontrar
-          geom = gj.features?.map(f => f?.geometry).find(g => g && (g.type === "Polygon" || g.type === "MultiPolygon"));
-        }
-  
-        if (isPolygonGeom(geom)) {
+        if (geom) {
           setLisbonBoundary(geom);
         } else {
-          console.warn("lisbon_boundary recebido, mas não é Polygon/MultiPolygon:", gj);
+          console.warn("lisbon_boundary: geojson não contém Polygon/MultiPolygon:", raw?.type);
         }
       } catch (e) {
         console.warn("Falha ao carregar limite de Lisboa; usando apenas BBOX.", e?.message || e);
       }
     })();
   }, []);
-
-  const getMap = () => mapRef.current;
 
   const fitToGeoJSON = (geojson) => {
     const map = getMap(); if (!map || !geojson) return;
@@ -1541,10 +1554,11 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
           {/* Contorno real de Lisboa (se disponível) */}
           {lisbonBoundary && isPolygonGeom(lisbonBoundary) && (
             <GeoJSON
-              data={lisbonBoundary}
+              data={asFeatureFromGeometry(lisbonBoundary)}
               style={{ color: "#334155", weight: 2, fillOpacity: 0, dashArray: "6 4" }}
             />
           )}
+
 
           {/* RESULTADOS da pesquisa no mapa */}
           {results.map((r, i) => {

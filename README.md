@@ -1,4 +1,5 @@
 **ENGLISH VERSION ABOVE • VERSÃO EM PORTUGUÊS ABAIXO**
+**Theoretical anchors, key references and extended bibliography are provided at the end of this document. • As âncoras teóricas, referências-chave e bibliografia estendida encontram-se no final deste documento.**
 
 # The Lisbons Within Lisbon - WebGIS (EN):
 
@@ -236,6 +237,36 @@ npm run dev
   - vite
   - leaflet
   - leaflet-draw
+
+ 
+---
+
+## Theoretical Anchors & Key References
+
+**English.**  
+This project builds on established and contemporary research in urban cognition, participatory GIS (PPGIS), volunteered geographic information (VGI), perceptual mapping, and critical urban studies. The references below constitute the core theoretical and methodological anchors informing the design of the WebGIS, the analytical framework, and the interpretation of results.
+
+**Português.**  
+Este projeto apoia-se em literatura clássica e contemporânea sobre cognição urbana, SIG Participativo (PPGIS), Informação Geográfica Voluntária (VGI), cartografia perceptiva e estudos urbanos críticos. As referências abaixo constituem as principais âncoras teóricas e metodológicas que fundamentam o desenho do WebSIG, o enquadramento analítico e a interpretação dos resultados.
+
+### Key References
+
+- Barros, M. S., Degbelo, A., & Filomena, G. (2022). **Evaluative Image 2.0: A Web Mapping Approach to Capture People’s Perceptions of a City**. *Transactions in GIS, 26*(2), 1116–1139. https://doi.org/10.1111/tgis.12867  
+- Brown, G., & Kyttä, M. (2014). **Key Issues and Research Priorities for Public Participation GIS (PPGIS): A Synthesis Based on Empirical Research**. *Applied Geography, 46*, 122–136. https://doi.org/10.1016/j.apgeog.2013.11.004  
+- Cullen, G. (1961). **The Concise Townscape**. Routledge.  
+- Dunn, C. E. (2007). **Participatory GIS — a people’s GIS?** *Progress in Human Geography, 31*(5), 616–637. https://doi.org/10.1177/0309132507081493  
+- Filomena, G., Verstegen, J. A., & Manley, E. (2019). **A Computational Approach to ‘The Image of the City’**. *Cities, 89*, 14–25. https://doi.org/10.1016/j.cities.2019.01.006  
+- García, I. (2025). **When the Map Does Not Tell the Whole Story: Integrating Community Voices into GIS Gentrification Analysis**. *Land, 14*(8), 1510. https://doi.org/10.3390/land14081510  
+- Goodchild, M. F. (2007). **Citizens as Sensors: The World of Volunteered Geography**. *GeoJournal, 69*(4), 211–221. https://doi.org/10.1007/s10708-007-9111-y  
+- Jiang, B. (2012). **Computing the Image of the City**. In *Proceedings of the Seventh International Conference on Informatics and Urban and Regional Planning (INPUT 2012)* (pp. 111–121).  
+- Lynch, K. (1964). **The Image of the City**. MIT Press.  
+- Montello, D. R. (2001). **Spatial Cognition**. In *International Encyclopedia of the Social & Behavioral Sciences* (pp. 14771–14775). Pergamon. https://doi.org/10.1016/B0-08-043076-7/02492-X  
+- Radil, S. M., & Anderson, M. B. (2019). **Rethinking PGIS: Participatory or (post)political GIS?** *Progress in Human Geography, 43*(2), 195–213. https://doi.org/10.1177/0309132517750774  
+- Tang, V., & Painho, M. (2024). **Patterns of (Dis)agreement: Revealing Differing Perceived Neighborhood Boundaries in Lisbon**. In *Proceedings of the 27th AGILE Conference on Geographic Information Science*. https://doi.org/10.5194/agile-giss-5-44-2024  
+- Zuk, M., Bierbaum, A. H., Chapple, K., Gorska, K., & Loukaitou-Sideris, A. (2018). **Gentrification, Displacement, and the Role of Public Investment**. *Journal of Planning Literature, 33*(1), 31–44. https://doi.org/10.1177/0885412217716439  
+
+---
+
 
 ## Créditos:
 Projeto desenvolvido no âmbito da tese de mestrado “As Lisboas de Lisboa: SIG Participativo na Identificação de Diferentes Tendências de Percepção da Paisagem Urbana”, pela NOVA IMS, Mestrado em Ciências e Sistemas de Informações Geográficas, 2026.

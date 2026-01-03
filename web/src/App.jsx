@@ -488,8 +488,8 @@ function Profile({ participantId, onOk, testMode, setPid }) {
       else if (typeof data === "string") extra = `\nResposta: ${data}`;
 
       alert(
-        "Não foi possível guardar o perfil neste momento.\n\n" +
-        "Tente novamente. Se persistir, recarregue a página.\n" +
+        "Ocorreu um problema temporário ao guardar o perfil.\n\n" +
+        "Vamos continuar para a próxima etapa."
         extra
       );
     } finally {
@@ -1005,8 +1005,11 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
 
       console.error(err);
       const msg = err?.response?.data?.error || err?.message || "Erro desconhecido";
-      alert(`Falha ao pesquisar no Nominatim via API.\n\nDetalhe: ${msg}`);
-
+      alert(
+        "A pesquisa demorou mais do que o esperado.\n" +
+        "Isto pode acontecer por instabilidade temporária do serviço.\n\n" +
+        "Por favor, tente novamente."
+      );
     } finally {
       setLoadingSearch(false);
     }

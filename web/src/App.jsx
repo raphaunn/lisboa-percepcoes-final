@@ -490,7 +490,6 @@ function Profile({ participantId, onOk, testMode, setPid }) {
       alert(
         "Ocorreu um problema temporário ao guardar o perfil.\n\n" +
         "Vamos continuar para a próxima etapa."
-        extra
       );
     } finally {
       setSaving(false);

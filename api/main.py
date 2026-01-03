@@ -129,6 +129,14 @@ def health():
 @app.api_route("/consent", methods=["GET", "POST"])
 def consent():
     pid = str(uuid.uuid4())
+
+    # Garante imediatamente que o participante existe no BD
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            ensure_participant(cur, pid)
+            ensure_profile_min(cur, pid)
+        conn.commit()
+
     return {"participant_id": pid}
 
 # ---------- util: leitura robusta de JSON ----------

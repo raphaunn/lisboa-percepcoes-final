@@ -443,6 +443,13 @@ function Profile({ participantId, onOk, testMode, setPid }) {
     if (saving) return;
 
     const payload = { ...form, ethnicity: consolidateEthnicity() };
+
+    // === PERFIL PENDENTE (guardar sempre antes do POST) ===
+    try {
+      localStorage.setItem("pending_profile", JSON.stringify(payload));
+      localStorage.setItem("profile_status", "pending");
+    } catch {}
+
     setSaving(true);
 
     const postWithPid = (pid) =>
@@ -453,14 +460,21 @@ function Profile({ participantId, onOk, testMode, setPid }) {
 
     try {
       await postWithPid(participantId);
+
+      // === PERFIL CONFIRMADO ===
+      try {
+        localStorage.removeItem("pending_profile");
+        localStorage.setItem("profile_status", "confirmed");
+      } catch {}
+
       onOk();
       return;
+
     } catch (err) {
       const status = err?.response?.status;
       const data = err?.response?.data;
       const msg = (data?.error || err?.message || "").toString().toLowerCase();
 
-      // Heurística: “cara de problema de pid/sessão”
       const looksLikePidProblem =
         status === 404 || status === 409 || status === 422 ||
         msg.includes("participant") ||
@@ -476,16 +490,19 @@ function Profile({ participantId, onOk, testMode, setPid }) {
           if (typeof setPid === "function") setPid(newPid);
 
           await postWithPid(newPid);
+
+          // === PERFIL CONFIRMADO (fallback PID) ===
+          try {
+            localStorage.removeItem("pending_profile");
+            localStorage.setItem("profile_status", "confirmed");
+          } catch {}
+
           onOk();
           return;
         } catch (err2) {
           console.error("Auto-recuperação de pid falhou:", err2);
         }
       }
-
-      let extra = "";
-      if (data?.error) extra = `\nDetalhe técnico: ${data.error}`;
-      else if (typeof data === "string") extra = `\nResposta: ${data}`;
 
       alert(
         "Ocorreu um problema temporário ao guardar o perfil.\n\n" +
@@ -1255,6 +1272,33 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
   };
 
   // =================== SUBMETER ===================
+  async function ensureProfileConfirmed(participantId) {
+    const status = localStorage.getItem("profile_status");
+  
+    // Já confirmado → segue
+    if (status === "confirmed") return true;
+  
+    const raw = localStorage.getItem("pending_profile");
+    if (!raw) return false;
+  
+    try {
+      const payload = JSON.parse(raw);
+  
+      await axios.post(`${API}/profile`, payload, {
+        params: { participant_id: participantId },
+        timeout: 15000
+      });
+  
+      localStorage.removeItem("pending_profile");
+      localStorage.setItem("profile_status", "confirmed");
+      return true;
+  
+    } catch (err) {
+      console.warn("Falha ao confirmar perfil antes do submit:", err);
+      return false;
+    }
+  }
+
   const submit = async () => {
     for (const it of items) {
       if (it.kind === "manual" && !it.name.trim()) {
@@ -1262,9 +1306,20 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
         return;
       }
     }
-
+  
     if (testMode) {
       onNext();
+      return;
+    }
+  
+    // 🔒 GARANTIA FINAL DE PERFIL
+    const profileOk = await ensureProfileConfirmed(participantId);
+    if (!profileOk) {
+      alert(
+        "Não foi possível confirmar o seu perfil neste momento.\n\n" +
+        "Por favor, verifique a sua ligação à internet e tente novamente.\n\n" +
+        "Os dados continuam visíveis nesta página."
+      );
       return;
     }
 
@@ -1708,6 +1763,36 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
 
 // =================== WIZARD ===================================================
 function ThemeWizard({ participantId, onDone, testMode }) {
+
+  // 🔹 NOVO useEffect — NÃO substitui nenhum
+  useEffect(() => {
+    const status = localStorage.getItem("profile_status");
+    const pending = localStorage.getItem("pending_profile");
+
+    if (status === "pending" && pending && participantId) {
+      retryProfileSync();
+    }
+  }, [participantId]);
+
+  const retryProfileSync = async () => {
+    try {
+      const raw = localStorage.getItem("pending_profile");
+      if (!raw) return;
+
+      const payload = JSON.parse(raw);
+
+      await axios.post(`${API}/profile`, payload, {
+        params: { participant_id: participantId },
+        timeout: 15000
+      });
+
+      localStorage.removeItem("pending_profile");
+      localStorage.setItem("profile_status", "confirmed");
+    } catch {
+
+    }
+  };
+
   const pages = [
     {
       code: "identity",

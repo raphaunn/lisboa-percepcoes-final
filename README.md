@@ -1,4 +1,4 @@
-# ➜[Participate in WebGIS • Participe do WebSIG](http://lisbonperceptions.rederua.pt/)
+# [➜ Participate in WebGIS (click here) • Participe no WebSIG (clique aqui)](http://lisbonperceptions.rederua.pt/)
 
 
 **(ENGLISH VERSION ABOVE • VERSÃO EM PORTUGUÊS ABAIXO)**

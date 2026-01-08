@@ -328,7 +328,7 @@ function Consent({ onOk, setPid, testMode }) {
       </h2>
       <p>O objetivo deste inquérito interativo é mapear as diferentes Lisboas dentro de Lisboa e, para isto, <strong>a sua participação é essencial!</strong></p>
       <p>Pretende-se identificar tendências na forma como diferentes pessoas enxergam a mesma paisagem urbana.</p>
-      <p>Esse projeto é realizado em contexto acadêmico, em âmbito do Mestrado de Ciências e Sistemas de Informação Geográfica, pela NOVA IMS.</p>
+      <p>Esse projeto é realizado em contexto acadêmico, em âmbito do Mestrado de Ciências e Sistemas de Informação Geográfica, pela NOVA IMS. O repositório do projeto, juntamente a referências e informações adicionais encontram-se em: github.com/raphaunn/lisboa-percepcoes-final</p>
       <p>O desenvolvimento da plataforma é autoral e o domínio foi contributo da <strong>Rede RUA</strong> (rederua.pt), uma startup de impacto social, com valores alinhados ao projeto, que se prestou a colaborar.</p>
       <p>Este formulário é anónimo e os dados serão usados exclusivamente para fins científicos.</p>
       <p>O tempo estimado é de aproximadamente 5 minutos.</p>

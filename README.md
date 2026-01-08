@@ -1,12 +1,13 @@
 **[➜ Participate in WebGIS (click here) • Participe no WebSIG (clique aqui)](http://lisbonperceptions.rederua.pt/)**
 #
 
-**(ENGLISH VERSION ABOVE • VERSÃO EM PORTUGUÊS ABAIXO)**
+
+** Theoretical anchors, key references and extended bibliography are provided at the end of this document. **
+
+** As âncoras teóricas, referências-chave e bibliografia estendida encontram-se no final deste documento. **
 #
 
-**Theoretical anchors, key references and extended bibliography are provided at the end of this document**
-
-**As âncoras teóricas, referências-chave e bibliografia estendida encontram-se no final deste documento**
+**(ENGLISH VERSION ABOVE • VERSÃO EM PORTUGUÊS ABAIXO)**
 #
 
 # The Lisbons Within Lisbon - WebGIS (EN):

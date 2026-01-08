@@ -5,6 +5,7 @@
 #
 
 **Theoretical anchors, key references and extended bibliography are provided at the end of this document**
+
 **As âncoras teóricas, referências-chave e bibliografia estendida encontram-se no final deste documento**
 #
 

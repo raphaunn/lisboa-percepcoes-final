@@ -8,7 +8,8 @@ As âncoras teóricas, referências-chave e bibliografia estendida encontram-se 
 #
 
 **(ENGLISH VERSION ABOVE • VERSÃO EM PORTUGUÊS ABAIXO)**
-#
+
+---
 
 # The Lisbons Within Lisbon - WebGIS (EN):
 

@@ -1333,32 +1333,40 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
   
     const raw = localStorage.getItem("pending_profile");
     if (!raw) return false;
-
+  
+    let payload = null;
+    try {
+      payload = JSON.parse(raw);
+    } catch {
+      return false;
+    }
+  
     try {
       await axios.post(`${API}/profile`, payload, {
         params: { participant_id: participantId },
         timeout: 15000
       });
-    
+  
       localStorage.removeItem("pending_profile");
       localStorage.setItem("profile_status", "confirmed");
       return true;
-    
+  
     } catch (err) {
-      const status = err?.response?.status;
+      const st = err?.response?.status;
       const msg = (err?.response?.data?.error || err?.message || "").toLowerCase();
-    
+  
       // ✅ 409 = já existe = confirmado
-      if (status === 409 && (msg.includes("already") || msg.includes("duplicate") || msg.includes("exists"))) {
+      if (st === 409 && (msg.includes("already") || msg.includes("duplicate") || msg.includes("exists"))) {
         localStorage.removeItem("pending_profile");
         localStorage.setItem("profile_status", "confirmed");
         return true;
       }
-    
+  
       console.warn("Falha ao confirmar perfil antes do submit:", err);
       return false;
     }
-
+  }
+  
   const submit = async () => {
     for (const it of items) {
       if (it.kind === "manual" && !it.name.trim()) {

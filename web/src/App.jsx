@@ -1888,7 +1888,7 @@ function ThemeWizard({ participantId, onDone, testMode }) {
         onSkip={onSkip}
         testMode={testMode}
         showRepeatNote={idx >= 1}
-      />
+/>
       <div style={{display:"flex", gap:8, marginTop:12}}>
         {idx>0 && <button onClick={back}>← Anterior</button>}
       </div>

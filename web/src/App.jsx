@@ -377,6 +377,8 @@ function Profile({ participantId, onOk, testMode, setPid }) {
   const [showIncomeInfo, setShowIncomeInfo] = useState(false);
   // Estado de "saving" para evitar múltiplos pedidos e melhorar UX
   const [saving, setSaving] = useState(false);
+  // Trava síncrona anti-duplo clique (não depende do state do React)
+  const savingRef = useRef(false);
 
   const ethnicityChoices = [
     "Branca","Preta/Negra","Parda/Mista","Amarela (ascendência asiática)","Indígena/Autóctone","Outra/Prefiro não dizer"
@@ -440,7 +442,10 @@ function Profile({ participantId, onOk, testMode, setPid }) {
       alert("Por favor, preencha: \n- " + requiredMissing.join("\n- "));
       return;
     }
-    if (saving) return;
+      // Evita duplo clique/tap ANTES do React atualizar o estado
+    if (savingRef.current) return;
+    savingRef.current = true;
+
 
     const payload = { ...form, ethnicity: consolidateEthnicity() };
 
@@ -451,6 +456,19 @@ function Profile({ participantId, onOk, testMode, setPid }) {
     } catch {}
 
     setSaving(true);
+  
+    // Se viemos do fallback LOCAL-..., tenta regularizar PID antes de salvar perfil
+    let pidToUse = participantId;
+    
+    if (typeof pidToUse === "string" && pidToUse.startsWith("LOCAL-")) {
+      try {
+        const fresh = await getFreshPid();
+        pidToUse = fresh;
+        if (typeof setPid === "function") setPid(fresh);
+      } catch (e) {
+        console.warn("Não foi possível obter PID real; tentando gravar com LOCAL mesmo assim.");
+      }
+    }
 
     const postWithPid = (pid) =>
       axios.post(`${API}/profile`, payload, {
@@ -459,7 +477,7 @@ function Profile({ participantId, onOk, testMode, setPid }) {
       });
 
     try {
-      await postWithPid(participantId);
+      await postWithPid(pidToUse);
 
       // === PERFIL CONFIRMADO ===
       try {
@@ -475,12 +493,28 @@ function Profile({ participantId, onOk, testMode, setPid }) {
       const data = err?.response?.data;
       const msg = (data?.error || err?.message || "").toString().toLowerCase();
 
+      console.log("PROFILE SAVE ERROR:", {
+        pid: participantId,
+        code: err?.code,
+        status: err?.response?.status,
+        data: err?.response?.data,
+        message: err?.message
+      });    
+
+      // 409 duplicate/already existe = SUCESSO
+      if (status === 409 && (msg.includes("already") || msg.includes("duplicate") || msg.includes("exists"))) {
+        try {
+          localStorage.removeItem("pending_profile");
+          localStorage.setItem("profile_status", "confirmed");
+        } catch {}
+        onOk();
+        return;
+      }  
+
       const looksLikePidProblem =
-        status === 404 || status === 409 || status === 422 ||
+        status === 404 || status === 422 ||
         msg.includes("participant") ||
         msg.includes("not found") ||
-        msg.includes("duplicate") ||
-        msg.includes("already") ||
         msg.includes("foreign key") ||
         msg.includes("invalid");
 
@@ -509,8 +543,10 @@ function Profile({ participantId, onOk, testMode, setPid }) {
         "Vamos continuar para a próxima etapa."
       );
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
+
   };
 
   return (

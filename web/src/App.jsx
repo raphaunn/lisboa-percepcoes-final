@@ -538,10 +538,27 @@ function Profile({ participantId, onOk, testMode, setPid }) {
         }
       }
 
+      // ✅ Se for timeout/rede (sem resposta), NÃO avisa o utilizador.
+      // Motivo: o perfil pode ter sido gravado, apenas não confirmado.
+      const isNetworkOrTimeout =
+        err?.code === "ECONNABORTED" ||
+        (err?.message || "").toLowerCase().includes("timeout") ||
+        !err?.response;
+      
+      if (isNetworkOrTimeout) {
+        // Mantém pending_profile + profile_status=pending (já guardados antes)
+        // e avança silenciosamente.
+        onOk();
+        return;
+      }
+      
+      // ✅ Caso NÃO seja timeout/rede: aqui é mais provável erro real (4xx/validação/etc).
       alert(
-        "Ocorreu um problema temporário ao guardar o perfil.\n\n" +
-        "Vamos continuar para a próxima etapa."
+        "Não foi possível guardar o perfil neste momento.\n\n" +
+        "Por favor, tente novamente."
       );
+      return;
+      
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -1316,24 +1333,31 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
   
     const raw = localStorage.getItem("pending_profile");
     if (!raw) return false;
-  
+
     try {
-      const payload = JSON.parse(raw);
-  
       await axios.post(`${API}/profile`, payload, {
         params: { participant_id: participantId },
         timeout: 15000
       });
-  
+    
       localStorage.removeItem("pending_profile");
       localStorage.setItem("profile_status", "confirmed");
       return true;
-  
+    
     } catch (err) {
+      const status = err?.response?.status;
+      const msg = (err?.response?.data?.error || err?.message || "").toLowerCase();
+    
+      // ✅ 409 = já existe = confirmado
+      if (status === 409 && (msg.includes("already") || msg.includes("duplicate") || msg.includes("exists"))) {
+        localStorage.removeItem("pending_profile");
+        localStorage.setItem("profile_status", "confirmed");
+        return true;
+      }
+    
       console.warn("Falha ao confirmar perfil antes do submit:", err);
       return false;
     }
-  }
 
   const submit = async () => {
     for (const it of items) {

@@ -293,37 +293,35 @@ function Consent({ onOk, setPid, testMode }) {
 
   const create = async () => {
     if (creating) return;
+  
+    // valida ANTES
+    if (!testMode && !allChecked) return;
+  
     setCreating(true);
-
-    try { localStorage.removeItem("pid"); } catch {}
-
-    // Modo teste: entra sempre
-    if (testMode) {
-      const dummy = `TEST-${Date.now()}`;
-      try { localStorage.setItem("pid", dummy); } catch {}
-      setPid(dummy);
-      onOk();
-      return;
-    }
-
-    if (!allChecked) return;
-
-    // Se a API não responder MUITO rápido, não bloqueia.
+  
     try {
+      localStorage.removeItem("pid");
+  
+      if (testMode) {
+        const dummy = `TEST-${Date.now()}`;
+        localStorage.setItem("pid", dummy);
+        setPid(dummy);
+        onOk();
+        return;
+      }
+  
       const r = await axios.get(`${API}/consent`, { timeout: 2000 });
       const pid = r?.data?.participant_id;
       if (!pid) throw new Error("Sem participant_id");
-      try { localStorage.setItem("pid", pid); } catch {}
+  
+      localStorage.setItem("pid", pid);
       setPid(pid);
       onOk();
-      return;
     } catch {
-      // fallback local
       const fallback = `LOCAL-${Date.now()}`;
-      try { localStorage.setItem("pid", fallback); } catch {}
+      localStorage.setItem("pid", fallback);
       setPid(fallback);
       onOk();
-      return;
     } finally {
       setCreating(false);
     }
@@ -405,7 +403,8 @@ function Profile({ participantId, onOk, testMode, setPid }) {
     belonging_1_5: null,
     safety_overall_1_5: null
   });
-
+  
+  const [missingKeys, setMissingKeys] = useState([]);
   // Estado para mostrar/ocultar nota discreta do rendimento (botão ℹ︎)
   const [showIncomeInfo, setShowIncomeInfo] = useState(false);
   // Estado de "saving" para evitar múltiplos pedidos e melhorar UX

@@ -287,37 +287,45 @@ function TestModeToggle({ testMode, setTestMode }) {
 function Consent({ onOk, setPid, testMode }) {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [missingKeys, setMissingKeys] = useState([]);
   const allChecked = agreeTerms && consent;
 
   const create = async () => {
-      try {
-        localStorage.removeItem("pid");
-      } catch {}
+    if (creating) return;
+    setCreating(true);
+
+    try { localStorage.removeItem("pid"); } catch {}
+
+    // Modo teste: entra sempre
     if (testMode) {
       const dummy = `TEST-${Date.now()}`;
       try { localStorage.setItem("pid", dummy); } catch {}
       setPid(dummy);
-      await new Promise(res => setTimeout(res, 200));
       onOk();
       return;
     }
+
     if (!allChecked) return;
 
+    // Se a API não responder MUITO rápido, não bloqueia.
     try {
-      const r = await axios.get(`${API}/consent`, {
-        timeout: 5000   // 5 segundos para evitar freeze infinito
-      });
-      try { localStorage.setItem("pid", r.data.participant_id); } catch {}
-      setPid(r.data.participant_id);
+      const r = await axios.get(`${API}/consent`, { timeout: 2000 });
+      const pid = r?.data?.participant_id;
+      if (!pid) throw new Error("Sem participant_id");
+      try { localStorage.setItem("pid", pid); } catch {}
+      setPid(pid);
       onOk();
-    } catch (err) {
-      console.warn("Falha no consentimento remoto, criando ID local.");
-
-      // === fallback local ===
+      return;
+    } catch {
+      // fallback local
       const fallback = `LOCAL-${Date.now()}`;
       try { localStorage.setItem("pid", fallback); } catch {}
       setPid(fallback);
-      onOk(); // segue mesmo assim
+      onOk();
+      return;
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -326,23 +334,48 @@ function Consent({ onOk, setPid, testMode }) {
       <h2 style={{ fontSize: "1.4rem", marginBottom: "0.5rem" }}>
         <strong>Olá!</strong>
       </h2>
-      <p>O objetivo deste inquérito interativo é mapear as diferentes Lisboas dentro de Lisboa e, para isto, <strong>a sua participação é essencial!</strong></p>
-      <p>Pretende-se identificar tendências na forma como diferentes pessoas enxergam a mesma paisagem urbana.</p>
-      <p>Esse projeto é realizado em contexto acadêmico, em âmbito do Mestrado de Ciências e Sistemas de Informação Geográfica, pela NOVA IMS. O repositório do projeto, juntamente a referências e informações adicionais encontram-se em: <strong>github.com/raphaunn/lisboa-percepcoes-final.</strong></p>
-      <p>O desenvolvimento da plataforma é autoral e o domínio foi contributo da <strong>Rede RUA</strong> (rederua.pt), uma startup de impacto social, com valores alinhados ao projeto, que se prestou a colaborar.</p>
-      <p>Este formulário é anónimo e os dados serão usados exclusivamente para fins científicos.</p>
-      <p>O tempo estimado é de aproximadamente 5 minutos.</p>
-      <p><strong>Nota:</strong> é possível que oscilações na conexão com as bases de dados ocorram e obriguem carregar o botão desejado novamente ou recarregar a página.</p>
+
+      {/* ... (mantém teus parágrafos exatamente como estão) ... */}
 
       <div style={{ marginTop: "1rem", display: "grid", gap: "0.5rem" }}>
-        <label><input type="checkbox" checked={agreeTerms} onChange={(e)=>setAgreeTerms(e.target.checked)}/> Li e concordo com os termos de uso.</label>
-        <label><input type="checkbox" checked={consent} onChange={(e)=>setConsent(e.target.checked)}/> Consinto em participar do inquérito.</label>
+        <label>
+          <input
+            type="checkbox"
+            checked={agreeTerms}
+            onChange={(e)=>setAgreeTerms(e.target.checked)}
+          />
+          {" "}Li e concordo com os termos de uso.
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            checked={consent}
+            onChange={(e)=>setConsent(e.target.checked)}
+          />
+          {" "}Consinto em participar do inquérito.
+        </label>
       </div>
 
       <div style={{ marginTop: "1rem" }}>
-        <button onClick={create} disabled={!allChecked && !testMode}>Continuar</button>
-        {(!allChecked && !testMode) && <div style={{ fontSize: ".9rem", color: "#666", marginTop: ".25rem" }}>Marque as duas opções acima para prosseguir.</div>}
-        {testMode && <div style={{ fontSize: ".9rem", color: "#7c2d12", marginTop: ".4rem" }}>Modo Teste: pode continuar sem marcar as caixas.</div>}
+        <button
+          onClick={create}
+          disabled={creating || (!allChecked && !testMode)}
+        >
+          {creating ? "A iniciar..." : "Continuar"}
+        </button>
+
+        {(!allChecked && !testMode) && (
+          <div style={{ fontSize: ".9rem", color: "#666", marginTop: ".25rem" }}>
+            Marque as duas opções acima para prosseguir.
+          </div>
+        )}
+
+        {testMode && (
+          <div style={{ fontSize: ".9rem", color: "#7c2d12", marginTop: ".4rem" }}>
+            Modo Teste: pode continuar sem marcar as caixas.
+          </div>
+        )}
       </div>
     </div>
   );
@@ -417,29 +450,56 @@ function Profile({ participantId, onOk, testMode, setPid }) {
     form.visitors_regular ||
     form.visitors_sporadic;
 
+  const FIELD_LABEL = {
+    relation: "Relação com Lisboa",
+    age_band: "Faixa etária",
+    gender: "Género",
+    ethnicity: "Identidade étnico-racial",
+    nationality: "Nacionalidade",
+    education: "Escolaridade completa",
+    income_band: "Rendimento médio mensal",
+    tenure: "Situação habitacional",
+    pt_use: "Uso de transporte público",
+    main_mode: "Modo de transporte predominante",
+    years_in_lisbon_band: "Tempo que reside ou residiu em Lisboa",
+    belonging_1_5: "Pertença (1–5)",
+    safety_overall_1_5: "Segurança geral (1–5)"
+  };
+  
+  const isMissing = (key) => missingKeys.includes(key);
+  const fieldStyle = (key) =>
+    isMissing(key) ? { border: "2px solid #dc2626", borderRadius: 6 } : {};
+    
   const requiredMissing = [];
-  if (!hasAnyRelation) requiredMissing.push("Relação com Lisboa (marque pelo menos uma)");
-  if (!form.age_band) requiredMissing.push("Faixa etária");
-  if (!form.gender) requiredMissing.push("Género");
-  if (!form._ethnicity_choice) requiredMissing.push("Identidade étnico-racial");
-  if (!form.nationality) requiredMissing.push("Nacionalidade");
-  if (!form.education) requiredMissing.push("Escolaridade completa");
-  if (!form.income_band) requiredMissing.push("Rendimento médio mensal");
-  if (!form.tenure) requiredMissing.push("Situação habitacional");
-  if (!form.pt_use) requiredMissing.push("Uso de transporte público");
-  if (!form.main_mode) requiredMissing.push("Modo de transporte predominante");
+  if (!hasAnyRelation) requiredMissing.push("relation");
+  if (!form.age_band) requiredMissing.push("age_band");
+  if (!form.gender) requiredMissing.push("gender");
+  if (!form._ethnicity_choice) requiredMissing.push("ethnicity");
+  if (!form.nationality) requiredMissing.push("nationality");
+  if (!form.education) requiredMissing.push("education");
+  if (!form.income_band) requiredMissing.push("income_band");
+  if (!form.tenure) requiredMissing.push("tenure");
+  if (!form.pt_use) requiredMissing.push("pt_use");
+  if (!form.main_mode) requiredMissing.push("main_mode");
+  
   if (yearsEnabled && (!form.years_in_lisbon_band || form.years_in_lisbon_band === "não aplicável")) {
-    requiredMissing.push("Tempo que reside ou residiu em Lisboa");
+    requiredMissing.push("years_in_lisbon_band");
   }
-  if (!(form.belonging_1_5 >= 1 && form.belonging_1_5 <= 5)) requiredMissing.push("Pertença (1–5)");
-  if (!(form.safety_overall_1_5 >= 1 && form.safety_overall_1_5 <= 5)) requiredMissing.push("Segurança geral (1–5)");
+  if (!(form.belonging_1_5 >= 1 && form.belonging_1_5 <= 5)) requiredMissing.push("belonging_1_5");
+  if (!(form.safety_overall_1_5 >= 1 && form.safety_overall_1_5 <= 5)) requiredMissing.push("safety_overall_1_5");
 
   const consolidateEthnicity = () => form._ethnicity_choice || form.ethnicity || "";
 
   const save = async () => {
     if (testMode) { onOk(); return; }
     if (requiredMissing.length) {
-      alert("Por favor, preencha: \n- " + requiredMissing.join("\n- "));
+      setMissingKeys(requiredMissing);
+    
+      // rolar para o primeiro campo em falta
+      const first = requiredMissing[0];
+      const el = document.getElementById(`field-${first}`);
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    
       return;
     }
       // Evita duplo clique/tap ANTES do React atualizar o estado
@@ -569,6 +629,24 @@ function Profile({ participantId, onOk, testMode, setPid }) {
   return (
     <div>
       <h2>Perfil</h2>
+      
+      {(!testMode && missingKeys.length > 0) && (
+        <div style={{
+          border:"1px solid #dc2626",
+          background:"#fef2f2",
+          color:"#7f1d1d",
+          padding:"10px 12px",
+          borderRadius:8,
+          marginBottom:10
+        }}>
+          <strong>Faltam campos obrigatórios:</strong>
+          <div style={{marginTop:6}}>
+            {missingKeys.map(k => (
+              <div key={k}>• {FIELD_LABEL[k] || k}</div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <fieldset style={{border:"1px solid #ddd", padding:"10px", marginBottom:"10px"}}>
         <legend><strong>Demografia</strong></legend>
@@ -848,6 +926,7 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
   const [showHowTo, setShowHowTo] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const searchAbortRef = useRef(null);
+  const [searchError, setSearchError] = useState("");
 
   // Categorias
   const [categories, setCategories] = useState([]);
@@ -1020,7 +1099,7 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
     searchAbortRef.current = new AbortController();
 
     setLoadingSearch(true);
-    setResults([]);
+    setResults("");
 
     try {
       // índice osm_id -> categoria já carregada
@@ -1040,10 +1119,10 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
       });
 
       if (r.data && r.data.error) {
-        alert(`Lentidão inesperada ao tentar pesquisar no Nominatim via API. Tente executar a ação novamente.\n\nDetalhe: ${r.data.error}`);
+        setSearchError("O serviço de pesquisa está temporariamente indisponível. Tente novamente dentro de instantes.");
         return;
       }
-
+      
       const list = (r.data.results || [])
         .filter((it) => isPolygonGeom(it.geojson))
         .map((it) => {
@@ -1063,7 +1142,6 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
       setResults(list);
 
     } catch (err) {
-      // === PESQUISA CANCELADA — NÃO FAZ NADA ===
       if (
         axios.isCancel?.(err) ||
         err?.name === "CanceledError" ||
@@ -1071,17 +1149,12 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
       ) {
         return;
       }
-
+    
       console.error(err);
-      const msg = err?.response?.data?.error || err?.message || "Erro desconhecido";
-      alert(
-        "A pesquisa demorou mais do que o esperado.\n" +
-        "Isto pode acontecer por instabilidade temporária do serviço.\n\n" +
-        "Por favor, tente novamente."
-      );
+      setSearchError("Não foi possível concluir a pesquisa agora. Tente novamente dentro de instantes.");
     } finally {
       setLoadingSearch(false);
-    }
+    }      
   };
 
   // =================== DEDUP (OSM) ===================
@@ -1565,6 +1638,21 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
         </button>
       </div>
 
+      {/* Erro de pesquisa (aparece apenas quando há erro) */}
+      {searchError && (
+        <div style={{
+          marginTop: 6,
+          marginBottom: 10,
+          border: "1px solid #dc2626",
+          background: "#fef2f2",
+          color: "#7f1d1d",
+          padding: "8px 10px",
+          borderRadius: 8
+        }}>
+          {searchError}
+        </div>
+      )}      
+
       {/* Resultados da pesquisa */}
       <div style={{fontWeight:600, margin:"8px 0 4px"}}>Resultados da pesquisa</div>
       <div style={{maxHeight:180, overflow:"auto"}}>
@@ -1832,7 +1920,6 @@ function ThemePage({ participantId, themeCode, title, prompt, onNext, onSkip, te
 // =================== WIZARD ===================================================
 function ThemeWizard({ participantId, onDone, testMode }) {
 
-  // 🔹 NOVO useEffect — NÃO substitui nenhum
   useEffect(() => {
     const status = localStorage.getItem("profile_status");
     const pending = localStorage.getItem("pending_profile");

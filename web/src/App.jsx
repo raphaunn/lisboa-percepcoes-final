@@ -341,10 +341,6 @@ function Consent({ onOk, setPid, testMode }) {
       <p><strong>Nota:</strong> é possível que oscilações na conexão com as bases de dados ocorram e obriguem carregar o botão desejado novamente ou recarregar a página.</p>
 
       <div style={{ marginTop: "1rem", display: "grid", gap: "0.5rem" }}>
-        <label><input type="checkbox" checked={agreeTerms} onChange={(e)=>setAgreeTerms(e.target.checked)}/> Li e concordo com os termos de uso.</label>
-        <label><input type="checkbox" checked={consent} onChange={(e)=>setConsent(e.target.checked)}/> Consinto em participar do inquérito.</label>
-      </div>
-      <div style={{ marginTop: "1rem", display: "grid", gap: "0.5rem" }}>
         <label>
           <input
             type="checkbox"

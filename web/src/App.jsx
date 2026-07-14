@@ -332,6 +332,7 @@ function Consent({ onOk, setPid, testMode }) {
       <h2 style={{ fontSize: "1.4rem", marginBottom: "0.5rem" }}>
         <strong>Olá!</strong>
       </h2>
+      <p><strong>AVISO: este projeto foi encerrado e algumas funcionalidades podem estar comprometidas por falta de manutenção.</strong></p>
       <p>O objetivo deste inquérito interativo é mapear as diferentes Lisboas dentro de Lisboa e, para isto, <strong>a sua participação é essencial!</strong></p>
       <p>Pretende-se identificar tendências na forma como diferentes pessoas enxergam a mesma paisagem urbana.</p>
       <p>Esse projeto é realizado em contexto acadêmico, em âmbito do Mestrado de Ciências e Sistemas de Informação Geográfica, pela NOVA IMS. O repositório do projeto, juntamente a referências e informações adicionais encontram-se em: <strong>github.com/raphaunn/lisboa-percepcoes-final.</strong></p>
